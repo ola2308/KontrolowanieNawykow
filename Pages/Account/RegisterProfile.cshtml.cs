@@ -32,7 +32,7 @@ namespace KontrolaNawykow.Pages.Account
 
         [BindProperty]
         public string RodzajPracy { get; set; }
-
+        public Gender Plec { get; set; }
         [BindProperty]
         public UserGoal Cel { get; set; }
 
@@ -141,6 +141,7 @@ namespace KontrolaNawykow.Pages.Account
                 }
 
                 // Aktualizacja danych u¿ytkownika
+                user.Plec = Plec;
                 user.Wiek = Wiek;
                 user.Waga = Waga;
                 user.Wzrost = Wzrost;
@@ -176,7 +177,7 @@ namespace KontrolaNawykow.Pages.Account
                     authProperties);
 
                 // Przekierowanie do strony g³ównej
-                return RedirectToPage("/Index");
+                return RedirectToPage("/Account/RegisterDiet");
             }
             catch (Exception ex)
             {

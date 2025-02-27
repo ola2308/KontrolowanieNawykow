@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection;
 
 namespace KontrolaNawykow.Models
 {
@@ -20,6 +21,7 @@ namespace KontrolaNawykow.Models
         public string PasswordHash { get; set; }
 
         public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
+        public Gender? Plec { get; set; }
 
         public int? Wiek { get; set; }
         public double? Waga { get; set; }
@@ -34,6 +36,9 @@ namespace KontrolaNawykow.Models
         public UserGoal? Cel { get; set; }
         public double? CustomBmi { get; set; }
         public int? CustomCaloriesDeficit { get; set; }
+        public int? CustomProteinGrams { get; set; }
+        public int? CustomCarbsGrams { get; set; }
+        public int? CustomFatGrams { get; set; }
 
         public List<Recipe> Recipes { get; set; }
         public List<MealPlan> MealPlans { get; set; }
@@ -41,7 +46,11 @@ namespace KontrolaNawykow.Models
         public List<ShoppingList> ShoppingLists { get; set; }
         public List<ToDo> ToDos { get; set; }
     }
-
+    public enum Gender
+    {
+        Mezczyzna,
+        Kobieta
+    }
     public enum UserGoal
     {
         ZdroweNawyki,
