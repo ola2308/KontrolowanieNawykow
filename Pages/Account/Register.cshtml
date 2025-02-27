@@ -1,0 +1,274 @@
+﻿@page
+@model KontrolaNawykow.Pages.Account.RegisterModel
+@{
+    ViewData["NoHeader"] = true;
+    ViewData["NoFooter"] = true;
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rejestracja - KontrolaNawyków</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Purple+Purse&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Charmonman:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        .success-message {
+            color: #28a745;
+            text-align: center;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+        }
+
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .text-danger {
+            color: #dc3545;
+            font-size: 0.875rem;
+            display: block;
+            margin-top: 5px;
+        }
+
+        .register-link {
+            color: #ff69b4;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .login-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .login-form-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .login-form-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .login-form-content {
+            position: relative;
+            z-index: 1;
+            padding: 2rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .login-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .font-purple-purse {
+            font-family: 'Purple Purse', cursive;
+        }
+
+        .font-charmonman {
+            font-family: 'Charmonman', cursive;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+            .login-input:focus {
+                border-color: #ff69b4;
+                outline: none;
+                box-shadow: 0 0 0 2px rgba(255, 105, 180, 0.2);
+            }
+
+        .login-button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+            .login-button:hover {
+                background-color: #ff1493;
+            }
+
+        .images-section {
+            flex: 1;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+            }
+
+            .images-section {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container fade-in">
+        <div class="login-form-section" style="background-image: url('/images/tlo.jpg')">
+            <div class="login-form-overlay"></div>
+            <div class="login-form-content">
+                <h1 class="login-title font-purple-purse">Rejestracja - Krok 1</h1>
+
+                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                {
+                    <div class="alert-danger">
+                        @Model.ErrorMessage
+                    </div>
+                }
+
+                <form method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="form-group">
+                        <input type="text"
+                               name="Username"
+                               id="Username"
+                               value=""
+                               class="login-input"
+                               placeholder="Nazwa użytkownika"
+                               required />
+                        <span asp-validation-for="Username" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="email"
+                               name="Email"
+                               id="Email"
+                               value=""
+                               class="login-input"
+                               placeholder="Email"
+                               required />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="password"
+                               name="Password"
+                               id="Password"
+                               class="login-input"
+                               placeholder="Hasło"
+                               required />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="password"
+                               name="ConfirmPassword"
+                               id="ConfirmPassword"
+                               class="login-input"
+                               placeholder="Potwierdź hasło"
+                               required />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="login-button">
+                        Kontynuuj
+                    </button>
+                </form>
+
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <p>
+                        Masz już konto?
+                        <a href="/Account/Login" class="register-link">
+                            Zaloguj się!
+                        </a>
+                    </p>
+                </div>
+
+                <div style="text-align: center; margin-top: 3rem;">
+                    <p class="font-charmonman" style="font-size: 1.25rem;">
+                        The feature depends on what you do today.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="images-section" style="background-image: url('/images/stronarejestracji2.png')">
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('Formularz rejestracji załadowany');
+
+            const form = document.querySelector('form');
+            console.log('Znaleziony formularz:', form);
+
+            form.addEventListener('submit', function (e) {
+                console.log('Próba wysłania formularza...');
+
+                // Wyświetl wartości wszystkich pól
+                const usernameValue = document.getElementById('Username').value;
+                const emailValue = document.getElementById('Email').value;
+                const passwordValue = document.getElementById('Password').value;
+                const confirmPasswordValue = document.getElementById('ConfirmPassword').value;
+
+                console.log(`Username: ${usernameValue}`);
+                console.log(`Email: ${emailValue}`);
+                console.log(`Password length: ${passwordValue.length}`);
+                console.log(`ConfirmPassword length: ${confirmPasswordValue.length}`);
+            });
+        });
+    </script>
+</body>
+</html>
