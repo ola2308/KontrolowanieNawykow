@@ -1,0 +1,417 @@
+﻿@page
+@model KontrolaNawykow.Pages.Profile.IndexModel
+@{
+    ViewData["Title"] = "Mój profil";
+}
+
+<div class="profile-container">
+    <div class="profile-header">
+        <h1 class="profile-title">Mój profil</h1>
+        <a href="/Index" class="back-button">Powrót do strony głównej</a>
+    </div>
+    
+    <div class="profile-content">
+        <div class="profile-column profile-data-column">
+            <div class="profile-section">
+                <h2>Dane podstawowe</h2>
+                <div class="profile-data">
+                    <div class="profile-item">
+                        <span class="profile-label">Nazwa użytkownika:</span>
+                        <span class="profile-value">@Model.CurrentUser.Username</span>
+                    </div>
+                    <div class="profile-item">
+                        <span class="profile-label">Email:</span>
+                        <span class="profile-value">@Model.CurrentUser.Email</span>
+                    </div>
+                    <div class="profile-item">
+                        <span class="profile-label">Wiek:</span>
+                        <span class="profile-value">@(Model.CurrentUser.Wiek?.ToString() ?? "Nie podano")</span>
+                    </div>
+                    <div class="profile-item">
+                        <span class="profile-label">Płeć:</span>
+                        <span class="profile-value">@(Model.CurrentUser.Plec?.ToString() ?? "Nie podano")</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-section">
+                <h2>Dane fizyczne</h2>
+                <div class="profile-data">
+                    <div class="profile-item">
+                        <span class="profile-label">Waga:</span>
+                        <span class="profile-value">@(Model.CurrentUser.Waga?.ToString("F1") ?? "Nie podano") kg</span>
+                    </div>
+                    <div class="profile-item">
+                        <span class="profile-label">Wzrost:</span>
+                        <span class="profile-value">@(Model.CurrentUser.Wzrost?.ToString("F1") ?? "Nie podano") cm</span>
+                    </div>
+                    <div class="profile-item">
+                        <span class="profile-label">BMI:</span>
+                        <span class="profile-value @GetBmiClass(Model.BMI)">@Model.BMI.ToString("F1") (@Model.BMICategory)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-section">
+                <h2>Cele i aktywność</h2>
+                <div class="profile-data">
+                    <div class="profile-item">
+                        <span class="profile-label">Cel:</span>
+                        <span class="profile-value">@Model.CurrentUser.Cel?.ToString()</span>
+                    </div>
+                    <div class="profile-item">
+                        <span class="profile-label">Aktywność fizyczna:</span>
+                        <span class="profile-value">@Model.CurrentUser.AktywnoscFizyczna</span>
+                    </div>
+                    <div class="profile-item">
+                        <span class="profile-label">Rodzaj pracy:</span>
+                        <span class="profile-value">@Model.CurrentUser.RodzajPracy</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-section">
+                <h2>Zalecenia żywieniowe</h2>
+                <div class="profile-data">
+                    <div class="profile-item">
+                        <span class="profile-label">Dzienne zapotrzebowanie kaloryczne:</span>
+                        <span class="profile-value">@(Model.CurrentUser.CustomCaloriesDeficit?.ToString() ?? "Nie obliczono") kcal</span>
+                    </div>
+                    @if (Model.CurrentUser.CustomProteinGrams.HasValue)
+                    {
+                        <div class="profile-item">
+                            <span class="profile-label">Zalecane białko:</span>
+                            <span class="profile-value">@Model.CurrentUser.CustomProteinGrams g</span>
+                        </div>
+                    }
+                    @if (Model.CurrentUser.CustomCarbsGrams.HasValue)
+                    {
+                        <div class="profile-item">
+                            <span class="profile-label">Zalecane węglowodany:</span>
+                            <span class="profile-value">@Model.CurrentUser.CustomCarbsGrams g</span>
+                        </div>
+                    }
+                    @if (Model.CurrentUser.CustomFatGrams.HasValue)
+                    {
+                        <div class="profile-item">
+                            <span class="profile-label">Zalecane tłuszcze:</span>
+                            <span class="profile-value">@Model.CurrentUser.CustomFatGrams g</span>
+                        </div>
+                    }
+                </div>
+            </div>
+            
+            <div class="profile-actions">
+                <a href="/Profile/Edit" class="profile-button">Edytuj profil</a>
+                <form method="post" asp-page-handler="GenerateShoppingList">
+                    <button type="submit" class="profile-button">Pobierz listę zakupów</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="profile-column profile-stats-column">
+            <div class="profile-section">
+                <h2>Statystyki</h2>
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-value">@Model.TotalRecipes</div>
+                        <div class="stat-label">Przepisy</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">@Model.TotalMealPlans</div>
+                        <div class="stat-label">Zaplanowane posiłki</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">@Model.CompletedTasks</div>
+                        <div class="stat-label">Wykonane zadania</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">@Model.PendingTasks</div>
+                        <div class="stat-label">Oczekujące zadania</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-section">
+                <h2>Dzisiejsze podsumowanie</h2>
+                <div class="daily-summary">
+                    <div class="summary-item">
+                        <span class="summary-label">Łączna liczba kalorii:</span>
+                        <span class="summary-value">@Model.TotalCalories kcal</span>
+                    </div>
+                    <div class="summary-progress">
+                        @{
+                            var calPercentage = Model.CurrentUser.CustomCaloriesDeficit.HasValue ? 
+                                Math.Min(100, (int)(Model.TotalCalories * 100.0 / Model.CurrentUser.CustomCaloriesDeficit.Value)) : 0;
+                        }
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: @calPercentage%"></div>
+                        </div>
+                        <div class="progress-text">@calPercentage% dziennego zapotrzebowania</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-section">
+                <h2>Lista zakupów</h2>
+                @if (Model.ShoppingList.Any())
+                {
+                    <div class="shopping-list">
+                        <ul class="ingredients-list">
+                            @foreach (var item in Model.ShoppingList)
+                            {
+                                <li class="ingredient-item">@item.IngredientName - @item.TotalAmount g</li>}
+
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <p class="empty-list-message">Brak składników do wyświetlenia. Dodaj posiłki na nadchodzący tydzień.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .profile-title {
+            font-size: 2.2rem;
+            color: #333;
+            margin: 0;
+        }
+        
+        .back-button {
+            background-color: #e91e63;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .back-button:hover {
+            background-color: #c2185b;
+        }
+        
+        .profile-content {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .profile-column {
+            flex: 1;
+        }
+        
+        .profile-data-column {
+            flex: 1.3;
+        }
+        
+        .profile-stats-column {
+            flex: 0.7;
+        }
+        
+        .profile-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .profile-section h2 {
+            color: #333;
+            font-size: 1.4rem;
+            margin-top: 0;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .profile-data {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .profile-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .profile-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .profile-value {
+            color: #333;
+        }
+        
+        .profile-value.underweight {
+            color: #ff9800;
+        }
+        
+        .profile-value.normal {
+            color: #4caf50;
+        }
+        
+        .profile-value.overweight {
+            color: #f44336;
+        }
+        
+        .profile-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .profile-button {
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+        }
+        
+        .profile-button:hover {
+            background-color: #c2185b;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .stat-card {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #e91e63;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .daily-summary {
+            margin-top: 10px;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .summary-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .summary-value {
+            color: #333;
+        }
+        
+        .summary-progress {
+            margin-top: 15px;
+        }
+        
+        .progress-bar {
+            height: 12px;
+            background-color: #f0f0f0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: #e91e63;
+        }
+        
+        .progress-text {
+            font-size: 0.8rem;
+            color: #666;
+            text-align: right;
+            margin-top: 5px;
+        }
+        
+        .shopping-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .ingredients-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .ingredient-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .ingredient-item:last-child {
+            border-bottom: none;
+        }
+        
+        .empty-list-message {
+            color: #666;
+            font-style: italic;
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        @@media (max-width: 768px) {
+            .profile-content {
+                flex-direction: column;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+}
+
+@functions {
+    string GetBmiClass(double bmi)
+    {
+        if (bmi < 18.5)
+            return "underweight";
+        else if (bmi < 25)
+            return "normal";
+        else
+            return "overweight";
+    }
+}

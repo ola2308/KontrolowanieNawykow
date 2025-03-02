@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KontrolaNawykow.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250226190159_nowa")]
-    partial class nowa
+    [Migration("20250228092943_.")]
+    partial class _
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -67,6 +67,9 @@ namespace KontrolaNawykow.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<float>("Amount")
+                        .HasColumnType("real");
+
                     b.Property<int>("Calories")
                         .HasColumnType("int");
 
@@ -99,6 +102,9 @@ namespace KontrolaNawykow.Migrations
                     b.Property<string>("CustomEntry")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("Eaten")
                         .HasColumnType("bit");
@@ -170,7 +176,7 @@ namespace KontrolaNawykow.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<float>("Amount")
+                    b.Property<float?>("Amount")
                         .HasColumnType("real");
 
                     b.Property<int>("IngredientId")
@@ -196,7 +202,7 @@ namespace KontrolaNawykow.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<float>("Amount")
+                    b.Property<float?>("Amount")
                         .HasColumnType("real");
 
                     b.Property<int>("IngredientId")
@@ -260,8 +266,23 @@ namespace KontrolaNawykow.Migrations
                     b.Property<int?>("Cel")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<double?>("CustomBmi")
+                        .HasColumnType("float");
+
+                    b.Property<int?>("CustomCaloriesDeficit")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CustomCarbsGrams")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CustomFatGrams")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CustomProteinGrams")
+                        .HasColumnType("int");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -270,6 +291,9 @@ namespace KontrolaNawykow.Migrations
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Plec")
+                        .HasColumnType("int");
 
                     b.Property<string>("RodzajPracy")
                         .HasMaxLength(50)

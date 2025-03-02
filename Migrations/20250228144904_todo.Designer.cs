@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KontrolaNawykow.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250227115352_AddBmiAndCaloriesDeficitFields")]
-    partial class AddBmiAndCaloriesDeficitFields
+    [Migration("20250228144904_todo")]
+    partial class todo
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -100,6 +100,9 @@ namespace KontrolaNawykow.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("Date")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("Eaten")
                         .HasColumnType("bit");
 
@@ -170,7 +173,7 @@ namespace KontrolaNawykow.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<float>("Amount")
+                    b.Property<float?>("Amount")
                         .HasColumnType("real");
 
                     b.Property<int>("IngredientId")
@@ -231,6 +234,9 @@ namespace KontrolaNawykow.Migrations
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsTemplate")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Task")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -269,6 +275,15 @@ namespace KontrolaNawykow.Migrations
                     b.Property<int?>("CustomCaloriesDeficit")
                         .HasColumnType("int");
 
+                    b.Property<int?>("CustomCarbsGrams")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CustomFatGrams")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CustomProteinGrams")
+                        .HasColumnType("int");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -276,6 +291,9 @@ namespace KontrolaNawykow.Migrations
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Plec")
+                        .HasColumnType("int");
 
                     b.Property<string>("RodzajPracy")
                         .HasMaxLength(50)

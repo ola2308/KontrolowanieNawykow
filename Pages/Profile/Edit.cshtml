@@ -1,0 +1,356 @@
+﻿@page
+@model KontrolaNawykow.Pages.Profile.EditModel
+@{
+    ViewData["Title"] = "Edytuj profil";
+}
+
+<div class="edit-profile-container">
+    <div class="edit-profile-header">
+        <h1 class="edit-profile-title">Edytuj profil</h1>
+        <a href="/Profile/Index" class="back-button">Powrót do profilu</a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert alert-success">
+            @Model.SuccessMessage
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">
+            @Model.ErrorMessage
+        </div>
+    }
+
+    <div class="edit-profile-content">
+        <form method="post">
+            <div class="edit-section">
+                <h2>Dane podstawowe</h2>
+                <div class="form-group">
+                    <label asp-for="UserEdit.Username">Nazwa użytkownika</label>
+                    <input asp-for="UserEdit.Username" class="form-control" />
+                    <span asp-validation-for="UserEdit.Username" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="UserEdit.Email">Email</label>
+                    <input asp-for="UserEdit.Email" class="form-control" />
+                    <span asp-validation-for="UserEdit.Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="UserEdit.Wiek">Wiek</label>
+                    <select asp-for="UserEdit.Wiek" class="form-control">
+                        <option value="">Wybierz wiek</option>
+                        @for (int i = 16; i <= 80; i++)
+                        {
+                            <option value="@i">@i lat</option>
+                        }
+                    </select>
+                    <span asp-validation-for="UserEdit.Wiek" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="UserEdit.Plec">Płeć</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" asp-for="UserEdit.Plec" id="gender-male" value="Mezczyzna" />
+                            <label for="gender-male">Mężczyzna</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" asp-for="UserEdit.Plec" id="gender-female" value="Kobieta" />
+                            <label for="gender-female">Kobieta</label>
+                        </div>
+                    </div>
+                    <span asp-validation-for="UserEdit.Plec" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="edit-section">
+                <h2>Dane fizyczne</h2>
+                <div class="form-group">
+                    <label asp-for="UserEdit.Waga">Waga (kg)</label>
+                    <input type="number" asp-for="UserEdit.Waga" class="form-control" step="0.1" min="30" max="250" />
+                    <span asp-validation-for="UserEdit.Waga" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="UserEdit.Wzrost">Wzrost (cm)</label>
+                    <input type="number" asp-for="UserEdit.Wzrost" class="form-control" step="1" min="120" max="250" />
+                    <span asp-validation-for="UserEdit.Wzrost" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="edit-section">
+                <h2>Cele i aktywność</h2>
+                <div class="form-group">
+                    <label asp-for="UserEdit.Cel">Cel</label>
+                    <div class="radio-group">
+                        <div class="radio-option goal-option">
+                            <input type="radio" asp-for="UserEdit.Cel" id="goal1" value="ZdroweNawyki" />
+                            <label for="goal1">Zdobycie zdrowych nawyków</label>
+                        </div>
+                        <div class="radio-option goal-option">
+                            <input type="radio" asp-for="UserEdit.Cel" id="goal2" value="Schudniecie" />
+                            <label for="goal2">Schudnięcie</label>
+                        </div>
+                        <div class="radio-option goal-option">
+                            <input type="radio" asp-for="UserEdit.Cel" id="goal3" value="PrzybranieMasy" />
+                            <label for="goal3">Przybranie na masie</label>
+                        </div>
+                    </div>
+                    <span asp-validation-for="UserEdit.Cel" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="UserEdit.AktywnoscFizyczna">Aktywność fizyczna</label>
+                    <div class="radio-group">
+                        <div class="radio-option activity-option">
+                            <input type="radio" asp-for="UserEdit.AktywnoscFizyczna" id="activity1" value="0 treningów tygodniowo" />
+                            <label for="activity1">0 treningów tygodniowo</label>
+                        </div>
+                        <div class="radio-option activity-option">
+                            <input type="radio" asp-for="UserEdit.AktywnoscFizyczna" id="activity2" value="1-3 treningów tygodniowo" />
+                            <label for="activity2">1-3 treningów tygodniowo</label>
+                        </div>
+                        <div class="radio-option activity-option">
+                            <input type="radio" asp-for="UserEdit.AktywnoscFizyczna" id="activity3" value="4-5 treningów tygodniowo" />
+                            <label for="activity3">4-5 treningów tygodniowo</label>
+                        </div>
+                    </div>
+                    <span asp-validation-for="UserEdit.AktywnoscFizyczna" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="UserEdit.RodzajPracy">Rodzaj pracy</label>
+                    <div class="radio-group">
+                        <div class="radio-option work-option">
+                            <input type="radio" asp-for="UserEdit.RodzajPracy" id="work1" value="Fizyczna" />
+                            <label for="work1">Fizyczna</label>
+                        </div>
+                        <div class="radio-option work-option">
+                            <input type="radio" asp-for="UserEdit.RodzajPracy" id="work2" value="Siedząca" />
+                            <label for="work2">Siedząca</label>
+                        </div>
+                        <div class="radio-option work-option">
+                            <input type="radio" asp-for="UserEdit.RodzajPracy" id="work3" value="Pół na pół" />
+                            <label for="work3">Pół na pół</label>
+                        </div>
+                    </div>
+                    <span asp-validation-for="UserEdit.RodzajPracy" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="submit-button">Zapisz zmiany</button>
+                <a href="/Profile/Index" class="cancel-button">Anuluj</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .edit-profile-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .edit-profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .edit-profile-title {
+            font-size: 2.2rem;
+            color: #333;
+            margin: 0;
+        }
+
+        .back-button {
+            background-color: #e91e63;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-button:hover {
+            background-color: #c2185b;
+            color: white;
+            text-decoration: none;
+        }
+
+        .edit-profile-content {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .edit-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .edit-section h2 {
+            color: #333;
+            font-size: 1.4rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            border-color: #e91e63;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(233, 30, 99, 0.2);
+        }
+
+        .text-danger {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 5px;
+        }
+
+        .goal-option, .activity-option, .work-option {
+            flex-basis: calc(33.33% - 10px);
+            padding: 8px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+
+        .goal-option input:checked + label,
+        .activity-option input:checked + label,
+        .work-option input:checked + label {
+            font-weight: bold;
+            color: #e91e63;
+        }
+
+        .goal-option:hover, .activity-option:hover, .work-option:hover {
+            background-color: #f0f0f0;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .submit-button {
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .submit-button:hover {
+            background-color: #c2185b;
+        }
+
+        .cancel-button {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 1rem;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .cancel-button:hover {
+            background-color: #e0e0e0;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @@media (max-width: 768px) {
+            .radio-group {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .goal-option, .activity-option, .work-option {
+                flex-basis: 100%;
+                margin-bottom: 5px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

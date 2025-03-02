@@ -97,6 +97,9 @@ namespace KontrolaNawykow.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("Date")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("Eaten")
                         .HasColumnType("bit");
 
@@ -167,7 +170,7 @@ namespace KontrolaNawykow.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<float>("Amount")
+                    b.Property<float?>("Amount")
                         .HasColumnType("real");
 
                     b.Property<int>("IngredientId")
@@ -226,6 +229,9 @@ namespace KontrolaNawykow.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsTemplate")
                         .HasColumnType("bit");
 
                     b.Property<string>("Task")

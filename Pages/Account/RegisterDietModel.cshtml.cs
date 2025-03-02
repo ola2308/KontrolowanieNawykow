@@ -35,9 +35,9 @@ namespace KontrolaNawykow.Pages.Account
         [BindProperty]
         public int FatGrams { get; set; }
 
-        public int ProteinPercentage => (int)Math.Round(ProteinGrams * 4.0 / CaloriesDeficit * 100);
-        public int CarbsPercentage => (int)Math.Round(CarbsGrams * 4.0 / CaloriesDeficit * 100);
-        public int FatPercentage => (int)Math.Round(FatGrams * 9.0 / CaloriesDeficit * 100);
+        public int ProteinPercentage => CaloriesDeficit > 0 ? (int)Math.Round(ProteinGrams * 4.0 / CaloriesDeficit * 100) : 0;
+        public int CarbsPercentage => CaloriesDeficit > 0 ? (int)Math.Round(CarbsGrams * 4.0 / CaloriesDeficit * 100) : 0;
+        public int FatPercentage => CaloriesDeficit > 0 ? (int)Math.Round(FatGrams * 9.0 / CaloriesDeficit * 100) : 0;
 
         [BindProperty]
         public bool UseCustomValues { get; set; }
@@ -223,38 +223,58 @@ namespace KontrolaNawykow.Pages.Account
 
         private int CalculateCaloriesDeficit(User user)
         {
-            // Podstawowe zapotrzebowanie kaloryczne (BMR) - wzór Harrisa-Benedicta
+            // Sprawdzenie czy mamy wszystkie niezbędne dane
+            if (!user.Waga.HasValue || !user.Wzrost.HasValue || !user.Wiek.HasValue)
+            {
+                return 2000; // Wartość domyślna jeśli brakuje danych
+            }
+
+            // Podstawowe zapotrzebowanie kaloryczne (BMR) - wzór Mifflina-St Jeora
             double bmr;
 
-            // Założenie: jeśli nie ma wieku, przyjmujemy średni wiek 30 lat
-            int wiek = user.Wiek ?? 30;
-
-            // BMR zależy od płci, ale w twojej aplikacji nie ma pola na płeć,
-            // więc użyjemy uniwersalnego wzoru Mifflina-St Jeora
-            bmr = 10 * user.Waga.Value + 6.25 * user.Wzrost.Value - 5 * wiek + 5;
+            // BMR w zależności od płci
+            if (user.Plec == Gender.Mezczyzna)
+            {
+                // Dla mężczyzn: BMR = 10 * waga + 6.25 * wzrost - 5 * wiek + 5
+                bmr = 10 * user.Waga.Value + 6.25 * user.Wzrost.Value - 5 * user.Wiek.Value + 5;
+            }
+            else
+            {
+                // Dla kobiet: BMR = 10 * waga + 6.25 * wzrost - 5 * wiek - 161
+                bmr = 10 * user.Waga.Value + 6.25 * user.Wzrost.Value - 5 * user.Wiek.Value - 161;
+            }
 
             // Współczynnik aktywności fizycznej (PAL)
             double pal = 1.2; // Domyślnie siedzący tryb życia
 
+            // Uwzględnienie aktywności fizycznej
             if (user.AktywnoscFizyczna != null)
             {
-                if (user.AktywnoscFizyczna.Contains("1-3"))
+                if (user.AktywnoscFizyczna.Contains("0 treningów"))
+                    pal = 1.2; // Siedzący tryb życia
+                else if (user.AktywnoscFizyczna.Contains("1-3"))
                     pal = 1.375; // Lekka aktywność
                 else if (user.AktywnoscFizyczna.Contains("4-5"))
                     pal = 1.55; // Umiarkowana aktywność
             }
 
-            // Dodatkowo uwzględniamy rodzaj pracy
+            // Uwzględnienie rodzaju pracy
             if (user.RodzajPracy != null)
             {
                 if (user.RodzajPracy == "Fizyczna")
-                    pal += 0.1;
+                    pal += 0.1; // Dodatkowa aktywność dla pracy fizycznej
                 else if (user.RodzajPracy == "Pół na pół")
-                    pal += 0.05;
+                    pal += 0.05; // Dodatkowa aktywność dla pracy mieszanej
             }
 
             // Całkowite dzienne zapotrzebowanie energetyczne (TDEE)
             double tdee = bmr * pal;
+
+            // Uwzględnienie wieku (metabolizm spada z wiekiem)
+            if (user.Wiek > 40)
+                tdee *= 0.98; // Lekka redukcja dla osób powyżej 40 lat
+            if (user.Wiek > 60)
+                tdee *= 0.97; // Dalsza redukcja dla osób powyżej 60 lat
 
             // Deficyt kaloryczny zależny od celu
             int deficit = 0;
@@ -275,36 +295,71 @@ namespace KontrolaNawykow.Pages.Account
                 deficit = (int)tdee;
             }
 
+            // Minimalna wartość kalorii zależna od płci
+            int minCalories = user.Plec == Gender.Mezczyzna ? 1500 : 1200;
+
+            // Upewnij się, że deficyt nie jest zbyt niski
+            if (deficit < minCalories)
+                deficit = minCalories;
+
             return deficit;
         }
 
         private void CalculateMacronutrients(User user)
         {
-            // Obliczanie makroskładników w zależności od celu
+            // Jeśli nie mamy danych o kaloriach, nie możemy obliczyć makroskładników
+            if (CaloriesDeficit <= 0)
+            {
+                ProteinGrams = 0;
+                CarbsGrams = 0;
+                FatGrams = 0;
+                return;
+            }
+
+            // Obliczanie makroskładników w zależności od celu i płci
             if (user.Cel == UserGoal.Schudniecie)
             {
-                // Wyższe białko, niższe węglowodany, umiarkowane tłuszcze
-                ProteinGrams = (int)(user.Waga.Value * 2.0); // 2g białka na kg masy ciała
+                // Wyższe białko, niższe węglowodany, umiarkowane tłuszcze dla redukcji
+                double proteinMultiplier = user.Plec == Gender.Mezczyzna ? 2.0 : 1.8;
+                ProteinGrams = (int)(user.Waga.Value * proteinMultiplier); // Więcej białka na kg masy ciała
                 FatGrams = (int)(CaloriesDeficit * 0.25 / 9); // 25% kalorii z tłuszczów
                 CarbsGrams = (int)((CaloriesDeficit - (ProteinGrams * 4) - (FatGrams * 9)) / 4);
             }
             else if (user.Cel == UserGoal.PrzybranieMasy)
             {
-                // Wysokie białko, wysokie węglowodany, umiarkowane tłuszcze
-                ProteinGrams = (int)(user.Waga.Value * 1.8); // 1.8g białka na kg masy ciała
+                // Wysokie białko, wysokie węglowodany, umiarkowane tłuszcze dla zwiększenia masy
+                double proteinMultiplier = user.Plec == Gender.Mezczyzna ? 1.8 : 1.6;
+                ProteinGrams = (int)(user.Waga.Value * proteinMultiplier);
                 FatGrams = (int)(CaloriesDeficit * 0.25 / 9); // 25% kalorii z tłuszczów
                 CarbsGrams = (int)((CaloriesDeficit - (ProteinGrams * 4) - (FatGrams * 9)) / 4);
             }
             else // UserGoal.ZdroweNawyki
             {
-                // Zrównoważony stosunek makroskładników
-                ProteinGrams = (int)(user.Waga.Value * 1.6); // 1.6g białka na kg masy ciała
+                // Zrównoważony stosunek makroskładników dla zdrowych nawyków
+                double proteinMultiplier = user.Plec == Gender.Mezczyzna ? 1.6 : 1.4;
+                ProteinGrams = (int)(user.Waga.Value * proteinMultiplier);
                 FatGrams = (int)(CaloriesDeficit * 0.3 / 9); // 30% kalorii z tłuszczów
                 CarbsGrams = (int)((CaloriesDeficit - (ProteinGrams * 4) - (FatGrams * 9)) / 4);
             }
 
+            // Uwzględnienie aktywności fizycznej przy obliczaniu węglowodanów
+            if (user.AktywnoscFizyczna != null && user.AktywnoscFizyczna.Contains("4-5"))
+            {
+                // Więcej węglowodanów dla osób aktywnych fizycznie
+                int extraCarbs = (int)(user.Waga.Value * 0.5); // Dodatkowe 0.5g węglowodanów na kg masy ciała
+                CarbsGrams += extraCarbs;
+
+                // Dostosowanie kalorii
+                CaloriesDeficit += extraCarbs * 4;
+            }
+
             // Upewnij się, że wartości nie są ujemne
-            if (CarbsGrams < 0) CarbsGrams = 50; // Minimalna wartość węglowodanów
+            if (CarbsGrams < 50) CarbsGrams = 50; // Minimalna wartość węglowodanów
+            if (ProteinGrams < 40) ProteinGrams = 40; // Minimalna wartość białka
+            if (FatGrams < 20) FatGrams = 20; // Minimalna wartość tłuszczów
+
+            // Korekta kaloryczności po dostosowaniu makroskładników
+            CaloriesDeficit = (ProteinGrams * 4) + (CarbsGrams * 4) + (FatGrams * 9);
         }
     }
 }

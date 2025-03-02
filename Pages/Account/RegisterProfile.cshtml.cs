@@ -177,7 +177,7 @@ namespace KontrolaNawykow.Pages.Account
                     authProperties);
 
                 // Przekierowanie do strony g³ównej
-                return RedirectToPage("/Account/RegisterDiet");
+                return RedirectToPage("/Account/RegisterDietModel");
             }
             catch (Exception ex)
             {

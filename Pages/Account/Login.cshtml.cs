@@ -126,7 +126,7 @@ namespace KontrolaNawyków.Pages.Account
                 Console.WriteLine($"? U¿ytkownik {user.Username} zosta³ zalogowany.");
 
                 // Przekierowanie do strony g³ównej
-                return RedirectToPage("/Index");
+                return RedirectToPage("/Diet/Index");
             }
             catch (Exception ex)
             {

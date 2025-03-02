@@ -23,7 +23,7 @@ namespace KontrolaNawykow.Controllers
             // Jeśli użytkownik jest już zalogowany, przekieruj go do strony głównej
             if (User.Identity.IsAuthenticated)
             {
-                return RedirectToPage("/Account/Login");
+                return RedirectToPage("/Diet/Index");
             }
             // Przekierowanie do strony Razor Page logowania
             return RedirectToPage("/Account/Login");

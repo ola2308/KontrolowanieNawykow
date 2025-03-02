@@ -1,0 +1,1884 @@
+﻿@page
+@model KontrolaNawykow.Pages.Diet.IndexModel
+@{
+    ViewData["Title"] = "Dieta";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dieta - KontrolaNawyków</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Purple+Purse&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Charmonman:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f9e3e6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Usuń domyślne style kontenera */
+        .container {
+            max-width: none;
+            width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Dostosowanie głównego kontenera */
+        .main-container {
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header-tabs {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0;
+            align-items: center;
+            background-color: #f9e3e6;
+            padding: 10px;
+        }
+
+        .tabs-container {
+            display: flex;
+        }
+
+        .tab-button {
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .tab-button.active {
+            background-color: #c2185b;
+        }
+
+        .profile-button {
+            margin-left: auto;
+        }
+
+        .profile-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .settings-icon {
+            width: 24px;
+            height: 24px;
+            margin-left: 8px;
+        }
+
+        .content-container {
+            border: 2px solid #333;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 10px;
+        }
+
+        /* Nawigacja tygodniowa */
+        .week-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .week-nav-btn {
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .week-nav-btn:hover {
+            background-color: #c2185b;
+        }
+
+        .add-meal-top-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .add-meal-top-btn:hover {
+            background-color: #3e8e41;
+        }
+
+        .days-header {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .day-column {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            border-right: 1px solid #ddd;
+        }
+
+        .day-column:last-child {
+            border-right: none;
+        }
+
+        .day-column.today {
+            background-color: rgba(233, 30, 99, 0.1);
+            border: 2px solid #e91e63;
+        }
+
+        .day-name {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .day-date {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .week-view {
+            display: flex;
+            min-height: 600px;
+        }
+
+        .meals-section {
+            padding: 10px;
+        }
+
+        .meal-card {
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            padding: 10px;
+        }
+
+        .meal-card.eaten {
+            opacity: 0.7;
+            background-color: #f0f0f0;
+        }
+
+        .meal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .meal-type {
+            font-weight: bold;
+            color: #e91e63;
+        }
+
+        .meal-actions {
+            display: flex;
+        }
+
+        .meal-action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 5px;
+        }
+
+        .heart-btn {
+            color: #e91e63;
+        }
+
+        .meal-content {
+            margin-top: 5px;
+            display: flex;
+        }
+
+        .meal-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .meal-image-placeholder {
+            width: 80px;
+            height: 80px;
+            background-color: #eee;
+            border-radius: 5px;
+            margin-right: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #999;
+        }
+
+        .meal-details {
+            flex: 1;
+        }
+
+        .meal-name {
+            font-weight: bold;
+            margin: 0 0 5px 0;
+        }
+
+        .meal-macros {
+            display: flex;
+            flex-wrap: wrap;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .meal-macros span {
+            margin-right: 10px;
+        }
+
+        .show-recipe-btn {
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .add-meal-btn {
+            padding: 10px;
+            background-color: #f0f0f0;
+            border: 1px dashed #999;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .add-meal-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        .eaten-meals-section {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .eaten-meals-section h4 {
+            font-size: 14px;
+            color: #666;
+            margin: 0 0 10px 0;
+        }
+
+        .daily-summary {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-top: 1px solid #ddd;
+        }
+
+        .macros-summary p {
+            margin: 2px 0;
+            font-size: 12px;
+        }
+
+        /* Style modalu */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 5px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .modal-lg {
+            max-width: 900px;
+        }
+
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .meal-option {
+            margin-bottom: 5px;
+        }
+
+        .btn-primary {
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: #c2185b;
+        }
+
+        .meal-section {
+            margin-top: 10px;
+        }
+
+        /* Style dla wizualnego wyboru przepisów */
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .recipe-item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .recipe-item:hover {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .recipe-item.selected {
+            border: 2px solid #e91e63;
+            background-color: rgba(233, 30, 99, 0.1);
+        }
+
+        .recipe-thumb {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 3px;
+            margin-bottom: 5px;
+        }
+
+        .recipe-thumb-placeholder {
+            width: 100%;
+            height: 120px;
+            background-color: #eee;
+            border-radius: 3px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #999;
+        }
+
+        .recipe-title {
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .recipe-macros {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .tab.active {
+            font-weight: bold;
+            border: 1px solid #ddd;
+            border-bottom-color: white;
+            margin-bottom: -1px;
+            background-color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .search-box {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .search-btn {
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            padding: 0 15px;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+
+        /* Style dla sekcji ładowania obrazów */
+        .image-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 15px;
+            border: 2px dashed #ddd;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .image-preview {
+            width: 150px;
+            height: 150px;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+        }
+
+        .upload-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .upload-btn:hover {
+            background-color: #3e8e41;
+        }
+
+        .ingredient-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+        }
+
+        .ingredient-item {
+            display: flex;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .ingredient-item:last-child {
+            border-bottom: none;
+        }
+
+        .ingredient-amount {
+            width: 80px;
+        }
+
+        .remove-ingredient-btn {
+            background: none;
+            border: none;
+            color: #e91e63;
+            cursor: pointer;
+            margin-left: auto;
+        }
+
+        .add-ingredient-form {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .add-ingredient-form input,
+        .add-ingredient-form select {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .add-ingredient-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        /* Nowe style dla formularza dodawania składnika */
+        .new-ingredient-form {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .new-ingredient-form h4 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .macros-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .macros-input {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .macros-input label {
+            font-size: 12px;
+            margin-bottom: 4px;
+            color: #666;
+        }
+        
+        .macros-input input {
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header-tabs">
+            <div class="tabs-container">
+                <a href="/Diet/Index" class="tab-button active">Dieta</a>
+                <a href="/ToDo/Index" class="tab-button">ToDo</a>
+            </div>
+            <div class="profile-button">
+                <a href="/Profile/Index" class="profile-link">Mój profil <i class="fas fa-user-cog"></i></a>
+            </div>
+        </div>
+
+        <div class="content-container">
+            <!-- Nawigacja tygodniowa -->
+            <div class="week-navigation">
+                <div>
+                    <a href="?WeekOffset=@(Model.WeekOffset - 1)" class="week-nav-btn">
+                        <i class="fas fa-chevron-left"></i> Poprzedni
+                    </a>
+                    <a href="?WeekOffset=0" class="week-nav-btn @(Model.WeekOffset == 0 ? "active" : "")">
+                        Obecny tydzień
+                    </a>
+                    <a href="?WeekOffset=@(Model.WeekOffset + 1)" class="week-nav-btn">
+                        Następny <i class="fas fa-chevron-right"></i>
+                    </a>
+                </div>
+                <button type="button" class="add-meal-top-btn" onclick="showAddRecipeModal()">
+                    <i class="fas fa-plus"></i> Dodaj przepis
+                </button>
+            </div>
+
+            <div class="days-header">
+                @foreach (var day in Model.WeekDays)
+                {
+                    <div class="day-column @(day.IsToday ? "today" : "")">
+                        <div class="day-name">@day.Name</div>
+                        <div class="day-date">@day.Date.ToString("dd.MM")</div>
+                    </div>
+                }
+            </div>
+
+            <div class="week-view">
+                @foreach (var day in Model.WeekDays)
+                {
+                    <div class="day-column @(day.IsToday ? "today" : "")">
+                        <div class="meals-section">
+                            @if (Model.MealPlans.ContainsKey(day.Date))
+                            {
+                                var meals = Model.MealPlans[day.Date].Where(m => !m.Eaten).ToList();
+                                @foreach (var meal in meals)
+                                {
+                                    <div class="meal-card" id="meal-@meal.Id">
+                                        <div class="meal-header">
+                                            <span class="meal-type">@meal.MealType.ToString()</span>
+                                            <div class="meal-actions">
+                                                <button class="meal-action-btn heart-btn" onclick="markMealEaten(@meal.Id)" title="Oznacz jako zjedzone">
+                                                    <i class="fas fa-utensils"></i>
+                                                </button>
+                                                <button class="meal-action-btn" onclick="editMeal(@meal.Id)" title="Edytuj posiłek">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="meal-action-btn" onclick="deleteMeal(@meal.Id)" title="Usuń posiłek">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="meal-content">
+                                            @if (meal.Recipe != null)
+                                            {
+                                                @if (meal.Recipe.ImageData != null)
+                                                {
+                                                    <img src="data:image/jpeg;base64,@Convert.ToBase64String(meal.Recipe.ImageData)" alt="@meal.Recipe.Name" class="meal-image" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="meal-image-placeholder">
+                                                        <i class="fas fa-image"></i>
+                                                    </div>
+                                                }
+                                                <div class="meal-details">
+                                                    <p class="meal-name">@meal.Recipe.Name</p>
+                                                    <div class="meal-macros">
+                                                        <span><i class="fas fa-fire"></i> @meal.Recipe.Calories kcal</span>
+                                                        <span><i class="fas fa-drumstick-bite"></i> @meal.Recipe.Protein g</span>
+                                                        <span><i class="fas fa-cheese"></i> @meal.Recipe.Fat g</span>
+                                                        <span><i class="fas fa-bread-slice"></i> @meal.Recipe.Carbs g</span>
+                                                    </div>
+                                                    <button class="show-recipe-btn" onclick="showRecipeDetails(@meal.Recipe.Id)">
+                                                        <i class="fas fa-book-open"></i> Pokaż przepis
+                                                    </button>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="meal-image-placeholder">
+                                                    <i class="fas fa-utensils"></i>
+                                                </div>
+                                                <div class="meal-details">
+                                                    <p class="meal-name">@meal.CustomEntry</p>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                            <div class="add-meal-btn" onclick="showAddMealModal('@day.Date.ToString("yyyy-MM-dd")')">
+                                <i class="fas fa-plus"></i> Dodaj posiłek
+                            </div>
+                        </div>
+                        @if (Model.MealPlans.ContainsKey(day.Date))
+                        {
+                            var eatenMeals = Model.MealPlans[day.Date].Where(m => m.Eaten).ToList();
+                            @if (eatenMeals.Any())
+                            {
+                                <div class="eaten-meals-section">
+                                    <h4>Zjedzone posiłki</h4>
+                                    @foreach (var meal in eatenMeals)
+                                    {
+                                        <div class="meal-card eaten">
+                                            <div class="meal-header">
+                                                <span class="meal-type">@meal.MealType.ToString()</span>
+                                                <div class="meal-actions">
+                                                    <button class="meal-action-btn" onclick="unmarkMealEaten(@meal.Id)" title="Oznacz jako niezjedzone">
+                                                        <i class="fas fa-undo"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="meal-content">
+                                                @if (meal.Recipe != null)
+                                                {
+                                                    @if (meal.Recipe.ImageData != null)
+                                                    {
+                                                        <img src="data:image/jpeg;base64,@Convert.ToBase64String(meal.Recipe.ImageData)" alt="@meal.Recipe.Name" class="meal-image" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="meal-image-placeholder">
+                                                            <i class="fas fa-image"></i>
+                                                        </div>
+                                                    }
+                                                    <div class="meal-details">
+                                                        <p class="meal-name">@meal.Recipe.Name</p>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="meal-image-placeholder">
+                                                        <i class="fas fa-utensils"></i>
+                                                    </div>
+                                                    <div class="meal-details">
+                                                        <p class="meal-name">@meal.CustomEntry</p>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+
+                        <div class="daily-summary">
+                            @{
+                                var dailyTotals = Model.GetDailyTotals(day.Date);
+                            }
+                            <div class="macros-summary">
+                                <p><i class="fas fa-fire"></i> Kcal: @dailyTotals.Calories</p>
+                                <p><i class="fas fa-drumstick-bite"></i> Białka: @dailyTotals.Protein g</p>
+                                <p><i class="fas fa-cheese"></i> Tłuszcze: @dailyTotals.Fat g</p>
+                                <p><i class="fas fa-bread-slice"></i> Węglowodany: @dailyTotals.Carbs g</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal dla dodawania/edycji posiłku -->
+    <div id="addMealModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addMealModal')">&times;</span>
+            <h2>Dodaj posiłek</h2>
+            <form id="addMealForm">
+                <input type="hidden" id="mealDate" name="Date" />
+                <input type="hidden" id="mealId" name="Id" />
+
+                <div class="form-group">
+                    <label for="mealType">Rodzaj posiłku:</label>
+                    <select id="mealType" name="MealType" class="form-control" required>
+                        <option value="Sniadanie">Śniadanie</option>
+                        <option value="Obiad">Obiad</option>
+                        <option value="Kolacja">Kolacja</option>
+                        <option value="Przekaska">Przekąska</option>
+                    </select>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('recipes')">Przepisy</div>
+                    <div class="tab" onclick="switchTab('ingredients')">Składniki</div>
+                </div>
+
+                <!-- Tab przepisów -->
+                <div id="recipes-tab" class="tab-content active">
+                    <div class="search-box">
+                        <input type="text" id="recipe-search" class="search-input" placeholder="Szukaj przepisów..." onkeyup="filterRecipes()" />
+                        <button type="button" class="search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+
+                    <div class="tabs">
+                        <div class="tab active" onclick="switchRecipeTab('private')">Moje przepisy</div>
+                        <div class="tab" onclick="switchRecipeTab('public')">Publiczne przepisy</div>
+                    </div>
+
+                    <div id="private-recipes" class="tab-content active">
+                        <div class="recipe-grid" id="private-recipe-grid">
+                            @foreach (var recipe in Model.Recipes.Where(r => r.UserId == Model.CurrentUser.Id))
+                            {
+                                <div class="recipe-item" data-id="@recipe.Id" data-name="@recipe.Name.ToLower()" onclick="selectRecipe(this, @recipe.Id)">
+                                    @if (recipe.ImageData != null)
+                                    {
+                                        <img src="data:image/jpeg;base64,@Convert.ToBase64String(recipe.ImageData)" alt="@recipe.Name" class="recipe-thumb" />
+                                    }
+                                    else
+                                    {
+                                        <div class="recipe-thumb-placeholder">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                    }
+                                    <div class="recipe-title">@recipe.Name</div>
+                                    <div class="recipe-macros">
+                                        <div><i class="fas fa-fire"></i> @recipe.Calories kcal</div>
+                                        <div><i class="fas fa-drumstick-bite"></i> B: @recipe.Protein g</div>
+                                        <div><i class="fas fa-cheese"></i> T: @recipe.Fat g</div>
+                                        <div><i class="fas fa-bread-slice"></i> W: @recipe.Carbs g</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div id="public-recipes" class="tab-content">
+                        <div class="recipe-grid" id="public-recipe-grid">
+                            @foreach (var recipe in Model.Recipes.Where(r => r.IsPublic && r.UserId != Model.CurrentUser.Id))
+                            {
+                                <div class="recipe-item" data-id="@recipe.Id" data-name="@recipe.Name.ToLower()" onclick="selectRecipe(this, @recipe.Id)">
+                                    @if (recipe.ImageData != null)
+                                    {
+                                        <img src="data:image/jpeg;base64,@Convert.ToBase64String(recipe.ImageData)" alt="@recipe.Name" class="recipe-thumb" />
+                                    }
+                                    else
+                                    {
+                                        <div class="recipe-thumb-placeholder">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                    }
+                                    <div class="recipe-title">@recipe.Name</div>
+                                    <div class="recipe-macros">
+                                        <div><i class="fas fa-fire"></i> @recipe.Calories kcal</div>
+                                        <div><i class="fas fa-drumstick-bite"></i> B: @recipe.Protein g</div>
+                                        <div><i class="fas fa-cheese"></i> T: @recipe.Fat g</div>
+                                        <div><i class="fas fa-bread-slice"></i> W: @recipe.Carbs g</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" id="recipeId" name="RecipeId" />
+        </div>
+
+        <!-- Tab składników -->
+        <div id="ingredients-tab" class="tab-content">
+            <div class="search-box">
+                <input type="text" id="ingredient-search" class="search-input" placeholder="Szukaj składników..." onkeyup="filterIngredients()" />
+                <button type="button" class="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+
+            <div class="recipe-grid" id="ingredients-grid">
+                @foreach (var ingredient in Model.Ingredients)
+                {
+                    <div class="recipe-item" data-id="@ingredient.Id" data-name="@ingredient.Name.ToLower()" onclick="addIngredientToMeal(@ingredient.Id, '@ingredient.Name', @ingredient.Calories, @ingredient.Protein, @ingredient.Fat, @ingredient.Carbs)">
+                        <div class="recipe-thumb-placeholder">
+                            <i class="fas fa-carrot"></i>
+                        </div>
+                        <div class="recipe-title">@ingredient.Name</div>
+                        <div class="recipe-macros">
+                            <div><i class="fas fa-fire"></i> @ingredient.Calories kcal/100 g</div>
+                            <div><i class="fas fa-drumstick-bite"></i> B: @ingredient.Protein g</div>
+                            <div><i class="fas fa-cheese"></i> T: @ingredient.Fat g</div>
+                            <div><i class="fas fa-bread-slice"></i> W: @ingredient.Carbs g</div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="selected-ingredients">
+                <h4>Wybrane składniki:</h4>
+                <div id="selected-ingredients-list" class="ingredient-list">
+                    <!-- Tu będą dodawane wybrane składniki -->
+                </div>
+            </div>
+
+            <!-- Formularz dodawania nowego składnika -->
+            <div class="new-ingredient-form">
+                <h4>Dodaj nowy składnik:</h4>
+                <div class="form-group">
+                    <label for="new-ingredient-name">Nazwa składnika:</label>
+                    <input type="text" id="new-ingredient-name" class="form-control" placeholder="Nazwa nowego składnika" />
+                </div>
+
+                <div class="macros-grid">
+                    <div class="macros-input">
+                        <label for="new-ingredient-calories"><i class="fas fa-fire"></i> Kalorie (kcal/100g):</label>
+                        <input type="number" id="new-ingredient-calories" min="0" value="0" />
+                    </div>
+                    <div class="macros-input">
+                        <label for="new-ingredient-protein"><i class="fas fa-drumstick-bite"></i> Białko (g/100g):</label>
+                        <input type="number" id="new-ingredient-protein" min="0" step="0.1" value="0" />
+                    </div>
+                    <div class="macros-input">
+                        <label for="new-ingredient-fat"><i class="fas fa-cheese"></i> Tłuszcz (g/100g):</label>
+                        <input type="number" id="new-ingredient-fat" min="0" step="0.1" value="0" />
+                    </div>
+                    <div class="macros-input">
+                        <label for="new-ingredient-carbs"><i class="fas fa-bread-slice"></i> Węglowodany (g/100g):</label>
+                        <input type="number" id="new-ingredient-carbs" min="0" step="0.1" value="0" />
+                    </div>
+                </div>
+
+                <button type="button" class="add-ingredient-btn" onclick="addNewIngredientWithMacros()">
+                    <i class="fas fa-plus"></i> Dodaj składnik
+                </button>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-primary" id="saveMealBtn" onclick="saveMeal()">Zapisz</button>
+        </form>
+    </div>
+    </div>
+
+    <!-- Modal dla dodawania/edycji przepisu -->
+    <div id="recipeModal" class="modal">
+        <div class="modal-content modal-lg">
+            <span class="close" onclick="closeModal('recipeModal')">&times;</span>
+            <h2>Dodaj nowy przepis</h2>
+            <form id="recipeForm" enctype="multipart/form-data">
+                <input type="hidden" id="recipeEditId" name="Id" />
+
+                <div class="form-group">
+                    <label for="recipeName">Nazwa przepisu:</label>
+                    <input type="text" id="recipeName" name="Name" class="form-control" required />
+                </div>
+
+                <div class="image-upload">
+                    <div class="image-preview" id="recipeImagePreview">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <input type="file" id="recipeImage" name="Image" accept="image/*" style="display: none;" onchange="previewImage(this)" />
+                    <button type="button" class="upload-btn" onclick="document.getElementById('recipeImage').click()">
+                        <i class="fas fa-upload"></i> Wybierz zdjęcie
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label>Makroskładniki (wyliczone automatycznie na podstawie składników):</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label for="recipeCalories">Kalorie (kcal):</label>
+                            <input type="number" id="recipeCalories" name="Calories" class="form-control" required min="0" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label for="recipeProtein">Białko (g):</label>
+                            <input type="number" id="recipeProtein" name="Protein" class="form-control" required min="0" step="0.1" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label for="recipeFat">Tłuszcz (g):</label>
+                            <input type="number" id="recipeFat" name="Fat" class="form-control" required min="0" step="0.1" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label for="recipeCarbs">Węglowodany (g):</label>
+                            <input type="number" id="recipeCarbs" name="Carbs" class="form-control" required min="0" step="0.1" readonly />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Składniki:</label>
+                    <div id="recipeIngredients" class="ingredient-list">
+                        <!-- Tu będą dodawane składniki przepisu -->
+                    </div>
+                    <div class="add-ingredient-form">
+                        <select id="ingredientSelect" class="form-control" style="flex: 2;">
+                            <option value="">Wybierz składnik...</option>
+                            @foreach (var ingredient in Model.Ingredients.OrderBy(i => i.Name))
+                            {
+                                <option value="@ingredient.Id"
+                                        data-calories="@ingredient.Calories"
+                                        data-protein="@ingredient.Protein"
+                                        data-fat="@ingredient.Fat"
+                                        data-carbs="@ingredient.Carbs">
+                                    @ingredient.Name
+                                </option>
+                            }
+                        </select>
+                        <input type="number" id="ingredientAmount" placeholder="Ilość" min="0" step="0.1" style="flex: 1;" />
+                        <button type="button" class="add-ingredient-btn" onclick="addIngredientToRecipe()">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+
+                    <!-- Dodawanie nowego składnika w modalu przepisu -->
+                    <div class="new-ingredient-form">
+                        <h4>Dodaj nowy składnik:</h4>
+                        <div class="form-group">
+                            <label for="recipe-new-ingredient-name">Nazwa składnika:</label>
+                            <input type="text" id="recipe-new-ingredient-name" class="form-control" placeholder="Nazwa nowego składnika" />
+                        </div>
+
+                        <div class="macros-grid">
+                            <div class="macros-input">
+                                <label for="recipe-new-ingredient-calories"><i class="fas fa-fire"></i> Kalorie (kcal/100g):</label>
+                                <input type="number" id="recipe-new-ingredient-calories" min="0" value="0" />
+                            </div>
+                            <div class="macros-input">
+                                <label for="recipe-new-ingredient-protein"><i class="fas fa-drumstick-bite"></i> Białko (g/100g):</label>
+                                <input type="number" id="recipe-new-ingredient-protein" min="0" step="0.1" value="0" />
+                            </div>
+                            <div class="macros-input">
+                                <label for="recipe-new-ingredient-fat"><i class="fas fa-cheese"></i> Tłuszcz (g/100g):</label>
+                                <input type="number" id="recipe-new-ingredient-fat" min="0" step="0.1" value="0" />
+                            </div>
+                            <div class="macros-input">
+                                <label for="recipe-new-ingredient-carbs"><i class="fas fa-bread-slice"></i> Węglowodany (g/100g):</label>
+                                <input type="number" id="recipe-new-ingredient-carbs" min="0" step="0.1" value="0" />
+                            </div>
+                        </div>
+
+                        <button type="button" class="add-ingredient-btn" onclick="addNewIngredientToRecipe()">
+                            <i class="fas fa-plus"></i> Dodaj składnik
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="recipeInstructions">Sposób przygotowania:</label>
+                    <textarea id="recipeInstructions" name="Instructions" class="form-control" rows="5"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="recipeIsPublic" name="IsPublic" />
+                        Udostępnij przepis publicznie
+                    </label>
+                </div>
+
+                <button type="button" class="btn btn-primary" onclick="saveRecipe()">Zapisz przepis</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal dla szczegółów przepisu -->
+    <div id="recipeDetailsModal" class="modal">
+        <div class="modal-content modal-lg">
+            <span class="close" onclick="closeModal('recipeDetailsModal')">&times;</span>
+            <div id="recipeDetailsContent">
+                <!-- Szczegóły przepisu będą wczytane dynamicznie -->
+            </div>
+        </div>
+    </div>
+    <script>
+        // Funkcje modalu
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Obsługa zakładek w modalu dodawania posiłku
+        function switchTab(tabId) {
+            // Ukryj wszystkie zakładki
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Usuń aktywną klasę ze wszystkich zakładek
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Aktywuj wybraną zakładkę
+            document.getElementById(`${tabId}-tab`).classList.add('active');
+
+            // Aktywuj przycisk zakładki
+            event.target.classList.add('active');
+        }
+
+        // Obsługa zakładek w sekcji przepisów
+        function switchRecipeTab(tabId) {
+            // Ukryj wszystkie zakładki przepisów
+            document.querySelectorAll('#recipes-tab .tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Usuń aktywną klasę z przycisków zakładek
+            document.querySelectorAll('#recipes-tab .tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Aktywuj wybraną zakładkę
+            document.getElementById(`${tabId}-recipes`).classList.add('active');
+
+            // Aktywuj przycisk zakładki
+            event.target.classList.add('active');
+        }
+
+        // Wybór przepisu w gridzie
+        function selectRecipe(element, recipeId) {
+            // Usuń zaznaczenie ze wszystkich przepisów
+            document.querySelectorAll('.recipe-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+
+            // Zaznacz wybrany przepis
+            element.classList.add('selected');
+
+            // Zapisz ID przepisu w ukrytym polu
+            document.getElementById('recipeId').value = recipeId;
+        }
+
+        // Filtrowanie przepisów podczas wyszukiwania
+        function filterRecipes() {
+            const searchText = document.getElementById('recipe-search').value.toLowerCase();
+
+            // Filtruj prywatne przepisy
+            document.querySelectorAll('#private-recipe-grid .recipe-item').forEach(item => {
+                const recipeName = item.getAttribute('data-name');
+                if (recipeName.includes(searchText)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Filtruj publiczne przepisy
+            document.querySelectorAll('#public-recipe-grid .recipe-item').forEach(item => {
+                const recipeName = item.getAttribute('data-name');
+                if (recipeName.includes(searchText)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Filtrowanie składników podczas wyszukiwania
+        function filterIngredients() {
+            const searchText = document.getElementById('ingredient-search').value.toLowerCase();
+
+            document.querySelectorAll('#ingredients-grid .recipe-item').forEach(item => {
+                const ingredientName = item.getAttribute('data-name');
+                if (ingredientName.includes(searchText)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Dodawanie składnika do posiłku z wartościami odżywczymi
+        function addIngredientToMeal(ingredientId, ingredientName, calories, protein, fat, carbs) {
+            const list = document.getElementById('selected-ingredients-list');
+
+            // Sprawdź czy składnik nie został już dodany
+            if (document.querySelector(`.ingredient-item[data-id="${ingredientId}"]`)) {
+                return;
+            }
+
+            const item = document.createElement('div');
+            item.className = 'ingredient-item';
+            item.setAttribute('data-id', ingredientId);
+            item.setAttribute('data-calories', calories);
+            item.setAttribute('data-protein', protein);
+            item.setAttribute('data-fat', fat);
+            item.setAttribute('data-carbs', carbs);
+
+            item.innerHTML = `
+                        <span>${ingredientName}</span>
+                        <input type="number" class="ingredient-amount form-control" placeholder="Ilość" value="100" min="0" step="0.1" onchange="updateMealMacros()" />
+                        <button type="button" class="remove-ingredient-btn" onclick="removeIngredient(this)">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <input type="hidden" name="IngredientIds[]" value="${ingredientId}" />
+                        <input type="hidden" name="IngredientAmounts[]" value="100" />
+                        <div class="meal-macros" style="font-size: 10px; margin-top: 4px;">
+                            <span><i class="fas fa-fire"></i> ${calories} kcal</span>
+                            <span><i class="fas fa-drumstick-bite"></i> ${protein}g</span>
+                            <span><i class="fas fa-cheese"></i> ${fat}g</span>
+                            <span><i class="fas fa-bread-slice"></i> ${carbs}g</span>
+                        </div>
+                    `;
+
+            list.appendChild(item);
+            updateMealMacros();
+        }
+
+        // Dodawanie nowego składnika z makroskładnikami
+        function addNewIngredientWithMacros() {
+            const ingredientName = document.getElementById('new-ingredient-name').value;
+            const calories = document.getElementById('new-ingredient-calories').value;
+            const protein = document.getElementById('new-ingredient-protein').value;
+            const fat = document.getElementById('new-ingredient-fat').value;
+            const carbs = document.getElementById('new-ingredient-carbs').value;
+
+            if (!ingredientName) {
+                alert('Wprowadź nazwę składnika');
+                return;
+            }
+
+            // Wyślij zapytanie do API, aby dodać nowy składnik
+            fetch('/api/ingredient', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: ingredientName,
+                    calories: parseInt(calories) || 0,
+                    protein: parseFloat(protein) || 0,
+                    fat: parseFloat(fat) || 0,
+                    carbs: parseFloat(carbs) || 0
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Dodaj nowy składnik do listy
+                    addIngredientToMeal(data.id, data.name, data.calories, data.protein, data.fat, data.carbs);
+
+                    // Wyczyść pola
+                    document.getElementById('new-ingredient-name').value = '';
+                    document.getElementById('new-ingredient-calories').value = '0';
+                    document.getElementById('new-ingredient-protein').value = '0';
+                    document.getElementById('new-ingredient-fat').value = '0';
+                    document.getElementById('new-ingredient-carbs').value = '0';
+
+                    // Odśwież stronę aby zaktualizować listę składników
+                    // location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Wystąpił błąd podczas dodawania nowego składnika');
+                });
+        }
+
+        // Usuwanie składnika z listy
+        function removeIngredient(button) {
+            const item = button.closest('.ingredient-item');
+            item.remove();
+            updateMealMacros();
+        }
+
+        // Aktualizacja makroskładników posiłku
+        function updateMealMacros() {
+            let totalCalories = 0;
+            let totalProtein = 0;
+            let totalFat = 0;
+            let totalCarbs = 0;
+
+            document.querySelectorAll('#selected-ingredients-list .ingredient-item').forEach(item => {
+                const amount = parseFloat(item.querySelector('.ingredient-amount').value) || 0;
+                const calories = parseFloat(item.getAttribute('data-calories')) || 0;
+                const protein = parseFloat(item.getAttribute('data-protein')) || 0;
+                const fat = parseFloat(item.getAttribute('data-fat')) || 0;
+                const carbs = parseFloat(item.getAttribute('data-carbs')) || 0;
+
+                totalCalories += calories * amount / 100;
+                totalProtein += protein * amount / 100;
+                totalFat += fat * amount / 100;
+                totalCarbs += carbs * amount / 100;
+            });
+
+            // Aktualizuj UI jeśli potrzeba
+            // Możesz dodać element, który będzie pokazywał sumę makroskładników dla wybranych składników
+        }
+
+        // Podgląd zdjęcia
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const preview = document.getElementById('recipeImagePreview');
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Podgląd" />`;
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Dodawanie składnika do przepisu
+        function addIngredientToRecipe() {
+            const ingredientSelect = document.getElementById('ingredientSelect');
+            const ingredientId = ingredientSelect.value;
+            const amount = document.getElementById('ingredientAmount').value;
+
+            if (!ingredientId || !amount) {
+                alert('Wybierz składnik i podaj ilość');
+                return;
+            }
+
+            const ingredientName = ingredientSelect.options[ingredientSelect.selectedIndex].text;
+            const calories = parseFloat(ingredientSelect.options[ingredientSelect.selectedIndex].dataset.calories) || 0;
+            const protein = parseFloat(ingredientSelect.options[ingredientSelect.selectedIndex].dataset.protein) || 0;
+            const fat = parseFloat(ingredientSelect.options[ingredientSelect.selectedIndex].dataset.fat) || 0;
+            const carbs = parseFloat(ingredientSelect.options[ingredientSelect.selectedIndex].dataset.carbs) || 0;
+
+            addIngredientToRecipeWithMacros(ingredientId, ingredientName, amount, calories, protein, fat, carbs);
+        }
+
+        // Dodawanie nowego składnika do przepisu
+        function addNewIngredientToRecipe() {
+            const ingredientName = document.getElementById('recipe-new-ingredient-name').value;
+            const calories = document.getElementById('recipe-new-ingredient-calories').value;
+            const protein = document.getElementById('recipe-new-ingredient-protein').value;
+            const fat = document.getElementById('recipe-new-ingredient-fat').value;
+            const carbs = document.getElementById('recipe-new-ingredient-carbs').value;
+
+            if (!ingredientName) {
+                alert('Wprowadź nazwę składnika');
+                return;
+            }
+
+            // Wyślij zapytanie do API, aby dodać nowy składnik
+            fetch('/api/ingredient', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: ingredientName,
+                    calories: parseInt(calories) || 0,
+                    protein: parseFloat(protein) || 0,
+                    fat: parseFloat(fat) || 0,
+                    carbs: parseFloat(carbs) || 0
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Dodaj nowy składnik do przepisu
+                    addIngredientToRecipeWithMacros(data.id, data.name, 100, data.calories, data.protein, data.fat, data.carbs);
+
+                    // Dodaj nowy składnik do listy wyboru
+                    const option = document.createElement('option');
+                    option.value = data.id;
+                    option.text = data.name;
+                    option.dataset.calories = data.calories;
+                    option.dataset.protein = data.protein;
+                    option.dataset.fat = data.fat;
+                    option.dataset.carbs = data.carbs;
+                    document.getElementById('ingredientSelect').add(option);
+
+                    // Wyczyść pola
+                    document.getElementById('recipe-new-ingredient-name').value = '';
+                    document.getElementById('recipe-new-ingredient-calories').value = '0';
+                    document.getElementById('recipe-new-ingredient-protein').value = '0';
+                    document.getElementById('recipe-new-ingredient-fat').value = '0';
+                    document.getElementById('recipe-new-ingredient-carbs').value = '0';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Wystąpił błąd podczas dodawania nowego składnika');
+                });
+        }
+
+        // Dodawanie składnika do przepisu z wartościami odżywczymi
+        function addIngredientToRecipeWithMacros(ingredientId, ingredientName, amount, calories, protein, fat, carbs) {
+            const list = document.getElementById('recipeIngredients');
+
+            // Sprawdź czy składnik nie został już dodany
+            if (document.querySelector(`.ingredient-item[data-ing-id="${ingredientId}"]`)) {
+                return;
+            }
+
+            const item = document.createElement('div');
+            item.className = 'ingredient-item';
+            item.setAttribute('data-ing-id', ingredientId);
+            item.setAttribute('data-calories', calories);
+            item.setAttribute('data-protein', protein);
+            item.setAttribute('data-fat', fat);
+            item.setAttribute('data-carbs', carbs);
+
+            item.innerHTML = `
+                        <span>${ingredientName}</span>
+                        <input type="number" class="ingredient-amount form-control" value="${amount}" min="0" step="0.1" onchange="calculateRecipeMacros()" />
+                        <button type="button" class="remove-ingredient-btn" onclick="removeIngredientFromRecipe(this)">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <input type="hidden" name="RecipeIngredients[].IngredientId" value="${ingredientId}" />
+                        <input type="hidden" name="RecipeIngredients[].Amount" value="${amount}" />
+                        <div class="meal-macros" style="font-size: 10px; margin-top: 4px;">
+                            <span><i class="fas fa-fire"></i> ${calories} kcal/100g</span>
+                            <span><i class="fas fa-drumstick-bite"></i> ${protein}g</span>
+                            <span><i class="fas fa-cheese"></i> ${fat}g</span>
+                            <span><i class="fas fa-bread-slice"></i> ${carbs}g</span>
+                        </div>
+                    `;
+
+            list.appendChild(item);
+
+            // Wyczyść pola wyboru
+            document.getElementById('ingredientSelect').value = '';
+            document.getElementById('ingredientAmount').value = '';
+
+            // Oblicz makroskładniki przepisu
+            calculateRecipeMacros();
+        }
+
+        // Usuwanie składnika z przepisu
+        function removeIngredientFromRecipe(button) {
+            const item = button.closest('.ingredient-item');
+            item.remove();
+            calculateRecipeMacros();
+        }
+
+        // Obliczanie makroskładników przepisu na podstawie składników
+        function calculateRecipeMacros() {
+            let totalCalories = 0;
+            let totalProtein = 0;
+            let totalFat = 0;
+            let totalCarbs = 0;
+
+            document.querySelectorAll('#recipeIngredients .ingredient-item').forEach(item => {
+                const amount = parseFloat(item.querySelector('.ingredient-amount').value) || 0;
+                const calories = parseFloat(item.getAttribute('data-calories')) || 0;
+                const protein = parseFloat(item.getAttribute('data-protein')) || 0;
+                const fat = parseFloat(item.getAttribute('data-fat')) || 0;
+                const carbs = parseFloat(item.getAttribute('data-carbs')) || 0;
+
+                totalCalories += calories * amount / 100;
+                totalProtein += protein * amount / 100;
+                totalFat += fat * amount / 100;
+                totalCarbs += carbs * amount / 100;
+
+                // Aktualizuj ukryte pole z ilością
+                item.querySelector('input[name="RecipeIngredients[].Amount"]').value = amount;
+            });
+
+            // Zaokrąglij wartości
+            totalCalories = Math.round(totalCalories);
+            totalProtein = Math.round(totalProtein * 10) / 10;
+            totalFat = Math.round(totalFat * 10) / 10;
+            totalCarbs = Math.round(totalCarbs * 10) / 10;
+
+            // Aktualizuj pola formularza
+            document.getElementById('recipeCalories').value = totalCalories;
+            document.getElementById('recipeProtein').value = totalProtein;
+            document.getElementById('recipeFat').value = totalFat;
+            document.getElementById('recipeCarbs').value = totalCarbs;
+        }
+
+        // Pokazywanie modalu dodawania posiłku
+        function showAddMealModal(date) {
+            // Reset formularza
+            document.getElementById('addMealForm').reset();
+            document.getElementById('mealId').value = '';
+            document.getElementById('mealDate').value = date;
+            document.getElementById('saveMealBtn').textContent = 'Zapisz';
+            document.querySelector('#addMealModal h2').textContent = 'Dodaj posiłek';
+
+            // Wyczyść wybrane składniki
+            document.getElementById('selected-ingredients-list').innerHTML = '';
+
+            // Wyczyść zaznaczenie przepisów
+            document.querySelectorAll('.recipe-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+
+            // Przywróć domyślne zakładki
+            switchTab('recipes');
+            switchRecipeTab('private');
+
+            document.getElementById('addMealModal').style.display = 'block';
+        }
+
+        // Pokazywanie modalu dodawania/edycji przepisu
+        function showAddRecipeModal() {
+            // Reset formularza
+            document.getElementById('recipeForm').reset();
+            document.getElementById('recipeEditId').value = '';
+            document.getElementById('recipeImagePreview').innerHTML = '<i class="fas fa-image"></i>';
+            document.getElementById('recipeIngredients').innerHTML = '';
+            document.querySelector('#recipeModal h2').textContent = 'Dodaj nowy przepis';
+
+            // Zresetuj pola makroskładników
+            document.getElementById('recipeCalories').value = '0';
+            document.getElementById('recipeProtein').value = '0';
+            document.getElementById('recipeFat').value = '0';
+            document.getElementById('recipeCarbs').value = '0';
+
+            document.getElementById('recipeModal').style.display = 'block';
+        }
+
+        // Zapisywanie przepisu
+        // Zapisywanie przepisu
+        async function saveRecipe() {
+            try {
+                const form = document.getElementById('recipeForm');
+                const formData = new FormData(form);
+
+                // Zbierz wszystkie składniki
+                const ingredients = [];
+                document.querySelectorAll('#recipeIngredients .ingredient-item').forEach(item => {
+                    ingredients.push({
+                        ingredientId: parseInt(item.getAttribute('data-ing-id')),
+                        amount: parseFloat(item.querySelector('.ingredient-amount').value)
+                    });
+                });
+
+                formData.append('RecipeIngredients', JSON.stringify(ingredients));
+
+                // Decydujemy czy aktualizujemy czy tworzymy
+                const isUpdate = formData.get('Id') && parseInt(formData.get('Id')) > 0;
+                const url = isUpdate ? `/api/recipe/${formData.get('Id')}` : '/api/recipe';
+                const method = isUpdate ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    body: formData,
+                });
+
+                if (response.ok) {
+                    closeModal('recipeModal');
+                    location.reload();
+                } else {
+                    alert('Wystąpił błąd podczas zapisywania przepisu.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Wystąpił błąd podczas zapisywania przepisu.');
+            }
+        }
+
+        // Zapisywanie posiłku
+        async function saveMeal() {
+            try {
+                const form = document.getElementById('addMealForm');
+                const formData = new FormData(form);
+
+                // Przygotuj dane w zależności od wybranej zakładki
+                let activeTab = '';
+                document.querySelectorAll('#addMealForm .tab').forEach((tab, index) => {
+                    if (tab.classList.contains('active')) {
+                        activeTab = tab.textContent.trim().toLowerCase();
+                    }
+                });
+
+                const data = {
+                    id: formData.get('Id') || 0,
+                    date: formData.get('Date'),
+                    mealType: formData.get('MealType'),
+                    recipeId: null,
+                    customEntry: null,
+                    ingredients: []
+                };
+
+                if (activeTab === 'przepisy') {
+                    data.recipeId = document.getElementById('recipeId').value || null;
+                    if (!data.recipeId) {
+                        alert('Proszę wybrać przepis.');
+                        return;
+                    }
+                } else if (activeTab === 'składniki') {
+                    const ingredients = [];
+                    document.querySelectorAll('#selected-ingredients-list .ingredient-item').forEach(item => {
+                        ingredients.push({
+                            ingredientId: parseInt(item.getAttribute('data-id')),
+                            amount: parseFloat(item.querySelector('.ingredient-amount').value)
+                        });
+                    });
+
+                    if (ingredients.length === 0) {
+                        alert('Proszę dodać przynajmniej jeden składnik.');
+                        return;
+                    }
+
+                    data.ingredients = ingredients;
+                    data.customEntry = 'Wybrane składniki';
+                }
+
+                // Decydujemy czy aktualizujemy czy tworzymy
+                const isUpdate = data.id && data.id > 0;
+                const url = isUpdate ? `/api/mealplan/${data.id}` : '/api/mealplan';
+                const method = isUpdate ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                if (response.ok) {
+                    closeModal('addMealModal');
+                    location.reload();
+                } else {
+                    alert('Wystąpił błąd podczas zapisywania posiłku.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Wystąpił błąd podczas zapisywania posiłku.');
+            }
+        }
+
+        // Edycja posiłku
+        async function editMeal(id) {
+            try {
+                const response = await fetch(`/api/mealplan/${id}`);
+
+                if (response.ok) {
+                    const meal = await response.json();
+
+                    // Ustawienie wartości formularza
+                    document.getElementById('mealId').value = meal.id;
+                    document.getElementById('mealDate').value = meal.date.split('T')[0];
+                    document.getElementById('mealType').value = meal.mealType;
+
+                    // Wybór odpowiedniej zakładki i wypełnienie danych
+                    if (meal.recipeId) {
+                        // Jest to przepis
+                        switchTab('recipes');
+
+                        // Znajdź element przepisu i zaznacz go
+                        const recipeItem = document.querySelector(`.recipe-item[data-id="${meal.recipeId}"]`);
+                        if (recipeItem) {
+                            // Przełącz na odpowiednią zakładkę (prywatne/publiczne)
+                            if (recipeItem.closest('#private-recipes')) {
+                                switchRecipeTab('private');
+                            } else {
+                                switchRecipeTab('public');
+                            }
+
+                            // Zaznacz przepis
+                            selectRecipe(recipeItem, meal.recipeId);
+                        }
+                    } else if (meal.ingredients && meal.ingredients.length > 0) {
+                        // Są to składniki
+                        switchTab('ingredients');
+
+                        // Wyczyść listę składników
+                        document.getElementById('selected-ingredients-list').innerHTML = '';
+
+                        // Dodaj składniki
+                        meal.ingredients.forEach(ing => {
+                            // Znajdź nazwę składnika
+                            const ingredientItem = document.querySelector(`.recipe-item[data-id="${ing.ingredientId}"]`);
+                            const ingredientName = ingredientItem ? ingredientItem.querySelector('.recipe-title').textContent : `Składnik #${ing.ingredientId}`;
+
+                            // Pobierz wartości odżywcze
+                            let calories = 0, protein = 0, fat = 0, carbs = 0;
+                            if (ingredientItem) {
+                                const macros = ingredientItem.querySelectorAll('.recipe-macros div');
+                                if (macros.length >= 1) calories = parseFloat(macros[0].textContent.match(/\d+(\.\d+)?/)) || 0;
+                                if (macros.length >= 2) protein = parseFloat(macros[1].textContent.match(/\d+(\.\d+)?/)) || 0;
+                                if (macros.length >= 3) fat = parseFloat(macros[2].textContent.match(/\d+(\.\d+)?/)) || 0;
+                                if (macros.length >= 4) carbs = parseFloat(macros[3].textContent.match(/\d+(\.\d+)?/)) || 0;
+                            }
+
+                            // Dodaj składnik do listy z makroskładnikami
+                            addIngredientToMeal(ing.ingredientId, ingredientName, calories, protein, fat, carbs);
+
+                            // Zaktualizuj ilość
+                            const item = document.querySelector(`.ingredient-item[data-id="${ing.ingredientId}"]`);
+                            if (item) {
+                                item.querySelector('.ingredient-amount').value = ing.amount;
+                            }
+                        });
+
+                        // Aktualizuj makroskładniki posiłku
+                        updateMealMacros();
+                    }
+
+                    // Aktualizacja UI
+                    document.querySelector('#addMealModal h2').textContent = 'Edytuj posiłek';
+                    document.getElementById('saveMealBtn').textContent = 'Zapisz zmiany';
+
+                    // Pokaż modal
+                    document.getElementById('addMealModal').style.display = 'block';
+                } else {
+                    alert('Nie udało się pobrać danych posiłku.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Wystąpił błąd podczas pobierania danych posiłku.');
+            }
+        }
+
+        // Edycja przepisu
+        async function editRecipe(id) {
+            try {
+                const response = await fetch(`/api/recipe/${id}`);
+
+                if (response.ok) {
+                    const recipe = await response.json();
+
+                    // Wypełnij formularz danymi
+                    document.getElementById('recipeEditId').value = recipe.id;
+                    document.getElementById('recipeName').value = recipe.name;
+                    document.getElementById('recipeCalories').value = recipe.calories;
+                    document.getElementById('recipeProtein').value = recipe.protein;
+                    document.getElementById('recipeFat').value = recipe.fat;
+                    document.getElementById('recipeCarbs').value = recipe.carbs;
+                    document.getElementById('recipeInstructions').value = recipe.instructions || '';
+                    document.getElementById('recipeIsPublic').checked = recipe.isPublic;
+
+                    // Wyświetl zdjęcie, jeśli istnieje
+                    if (recipe.imageData) {
+                        const preview = document.getElementById('recipeImagePreview');
+                        preview.innerHTML = `<img src="data:image/jpeg;base64,${recipe.imageData}" alt="${recipe.name}" />`;
+                    }
+
+                    // Dodaj składniki
+                    document.getElementById('recipeIngredients').innerHTML = '';
+                    if (recipe.recipeIngredients && recipe.recipeIngredients.length > 0) {
+                        recipe.recipeIngredients.forEach(ri => {
+                            // Dodaj składnik z makroskładnikami
+                            addIngredientToRecipeWithMacros(
+                                ri.ingredientId,
+                                ri.ingredient.name,
+                                ri.amount,
+                                ri.ingredient.calories,
+                                ri.ingredient.protein,
+                                ri.ingredient.fat,
+                                ri.ingredient.carbs
+                            );
+                        });
+                    }
+
+                    // Aktualizacja UI
+                    document.querySelector('#recipeModal h2').textContent = 'Edytuj przepis';
+
+                    // Pokaż modal
+                    document.getElementById('recipeModal').style.display = 'block';
+                } else {
+                    alert('Nie udało się pobrać danych przepisu.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Wystąpił błąd podczas pobierania danych przepisu.');
+            }
+        }
+
+        // Oznaczanie posiłku jako zjedzonego
+        async function markMealEaten(id) {
+            try {
+                const response = await fetch(`/api/mealplan/${id}/eaten`, {
+                    method: 'PUT',
+                });
+
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Wystąpił błąd podczas oznaczania posiłku jako zjedzonego.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Wystąpił błąd podczas oznaczania posiłku jako zjedzonego.');
+            }
+        }
+
+        // Oznaczanie posiłku jako niezjedzonego
+        async function unmarkMealEaten(id) {
+            try {
+                const response = await fetch(`/api/mealplan/${id}/uneaten`, {
+                    method: 'PUT',
+                });
+
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Wystąpił błąd podczas oznaczania posiłku jako niezjedzonego.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Wystąpił błąd podczas oznaczania posiłku jako niezjedzonego.');
+            }
+        }
+
+        // Usuwanie posiłku
+        async function deleteMeal(id) {
+            if (confirm('Czy na pewno chcesz usunąć ten posiłek?')) {
+                try {
+                    const response = await fetch(`/api/mealplan/${id}`, {
+                        method: 'DELETE',
+                    });
+
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('Wystąpił błąd podczas usuwania posiłku.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Wystąpił błąd podczas usuwania posiłku.');
+                }
+            }
+        }
+
+        // Szczegóły przepisu
+        async function showRecipeDetails(id) {
+            try {
+                const response = await fetch(`/api/recipe/${id}`);
+
+                if (response.ok) {
+                    const recipe = await response.json();
+                    const content = document.getElementById('recipeDetailsContent');
+
+                    let imageHtml = '';
+                    if (recipe.imageData) {
+                        imageHtml = `<img src="data:image/jpeg;base64,${recipe.imageData}" alt="${recipe.name}" style="max-width: 100%; max-height: 300px; object-fit: cover; border-radius: 5px; margin-bottom: 15px;" />`;
+                    }
+
+                    let ingredientsHtml = '';
+                    if (recipe.recipeIngredients && recipe.recipeIngredients.length > 0) {
+                        ingredientsHtml = '<h3>Składniki:</h3><ul>';
+                        recipe.recipeIngredients.forEach(ri => {
+                            ingredientsHtml += `<li>${ri.amount} g ${ri.ingredient.name}</li>`;
+                        });
+                        ingredientsHtml += '</ul>';
+                    }
+
+                    content.innerHTML = `
+                                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                                            <h2>${recipe.name}</h2>
+                                            <button type="button" class="btn btn-primary" onclick="editRecipe(${recipe.id})">
+                                                <i class="fas fa-edit"></i> Edytuj przepis
+                                            </button>
+                                        </div>
+                                        ${imageHtml}
+                                        <div class="recipe-macros" style="display: flex; gap: 15px; margin-bottom: 15px;">
+                                            <p><strong><i class="fas fa-fire"></i> Kalorie:</strong> ${recipe.calories} kcal</p>
+                                            <p><strong><i class="fas fa-drumstick-bite"></i> Białko:</strong> ${recipe.protein} g</p>
+                                            <p><strong><i class="fas fa-cheese"></i> Tłuszcze:</strong> ${recipe.fat} g</p>
+                                            <p><strong><i class="fas fa-bread-slice"></i> Węglowodany:</strong> ${recipe.carbs} g</p>
+                                        </div>
+                                        ${ingredientsHtml}
+                                        <h3>Sposób przygotowania:</h3>
+                                        <p>${recipe.instructions || 'Brak szczegółowego przepisu.'}</p>
+                                    `;
+
+                    document.getElementById('recipeDetailsModal').style.display = 'block';
+                } else {
+                    alert('Nie udało się wczytać szczegółów przepisu.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Wystąpił błąd podczas wczytywania szczegółów przepisu.');
+            }
+        }
+
+        // Zamknij modal po kliknięciu poza nim
+        window.onclick = function (event) {
+            const modals = document.getElementsByClassName('modal');
+            for (let i = 0; i < modals.length; i++) {
+                if (event.target == modals[i]) {
+                    modals[i].style.display = 'none';
+                }
+            }
+        };
+    </script>
+</body>
+</html>

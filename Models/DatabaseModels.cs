@@ -71,6 +71,7 @@ namespace KontrolaNawykow.Models
         public float Fat { get; set; }
         public float Carbs { get; set; }
         public string Instructions { get; set; }
+        public byte[] ImageData { get; set; }
 
         public int UserId { get; set; }
         public User User { get; set; }
@@ -91,9 +92,9 @@ namespace KontrolaNawykow.Models
 
         [ForeignKey("Ingredient")]
         public int IngredientId { get; set; }
-        public Ingredient Ingredient { get; set; }
+        public Ingredient? Ingredient { get; set; }
 
-        public float Amount { get; set; }
+        public float? Amount { get; set; }
     }
 
     public class Ingredient
@@ -118,6 +119,7 @@ namespace KontrolaNawykow.Models
         public int UserId { get; set; }
         public User User { get; set; }
         public MealType MealType { get; set; }
+        public DateTime? Date { get; set; }
         public int? RecipeId { get; set; }
         public Recipe Recipe { get; set; }
         public string CustomEntry { get; set; }
@@ -163,6 +165,7 @@ namespace KontrolaNawykow.Models
         public string Task { get; set; }
         public bool IsCompleted { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public bool IsTemplate { get; set; } = false;
     }
 
     public class UserStatisticsViewModel

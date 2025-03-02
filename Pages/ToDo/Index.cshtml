@@ -1,0 +1,833 @@
+﻿@page
+@model KontrolaNawykow.Pages.ToDo.IndexModel
+@{
+    ViewData["Title"] = "ToDo";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ToDo - KontrolaNawyków</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Purple+Purse&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Charmonman:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f9e3e6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Usuń domyślne style kontenera */
+        .container {
+            max-width: none;
+            width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Dostosowanie głównego kontenera */
+        .main-container {
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header-tabs {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0;
+            align-items: center;
+            background-color: #f9e3e6;
+            padding: 10px;
+        }
+
+        .tabs-container {
+            display: flex;
+        }
+
+        .tab-button {
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .tab-button.active {
+            background-color: #c2185b;
+        }
+
+        .profile-button {
+            margin-left: auto;
+        }
+
+        .profile-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .settings-icon {
+            width: 24px;
+            height: 24px;
+            margin-left: 8px;
+        }
+
+        .content-container {
+            border: 2px solid #333;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 10px;
+        }
+
+        .week-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .week-nav-text {
+            font-weight: bold;
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .week-nav-btn {
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+        }
+
+        .week-nav-btn:hover {
+            background-color: #c2185b;
+        }
+
+        .days-header {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .day-column {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            border-right: 1px solid #ddd;
+            /* Stała szerokość kolumn */
+            width: calc(100% / 7);
+            min-width: 0;
+            box-sizing: border-box;
+        }
+
+        .day-column:last-child {
+            border-right: none;
+        }
+
+        .day-column.today {
+            background-color: rgba(233, 30, 99, 0.1);
+            border: 2px solid #e91e63;
+        }
+
+        .day-name {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .day-date {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .week-view {
+            display: flex;
+            min-height: 600px;
+        }
+
+        .todo-section {
+            padding: 10px;
+            /* Dodajemy przewijanie dla gdy zawartość jest za duża */
+            overflow-y: auto;
+            max-height: 350px;
+        }
+
+        /* POPRAWIONE STYLE DLA KART ZADAŃ */
+        .todo-card {
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start; /* Wyrównanie do góry */
+        }
+
+        .todo-card.completed {
+            opacity: 0.7;
+            background-color: #f0f0f0;
+        }
+
+        .todo-content {
+            flex: 1;
+            min-width: 0;
+            padding-right: 5px; /* Odstęp od przycisków */
+        }
+
+        .todo-name {
+            font-weight: bold;
+            margin: 0;
+            font-size: 14px; /* Mniejsza czcionka */
+            line-height: 1.2; /* Mniejsza wysokość linii */
+            word-break: keep-all; /* Zapobiega łamaniu słów */
+            overflow-wrap: break-word; /* Zawijanie długich słów */
+            hyphens: auto; /* Dzielenie wyrazów gdy potrzebne */
+            display: block; /* Blokowe wyświetlanie */
+            text-align: left; /* Wyrównanie do lewej */
+        }
+
+        .todo-actions {
+            display: flex;
+            margin-left: 5px;
+            flex-shrink: 0;
+            flex-direction: column; /* Przyciski w kolumnie dla lepszego układu */
+        }
+
+        .todo-action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 3px;
+            padding: 2px;
+        }
+
+        .heart-btn {
+            color: #e91e63;
+        }
+
+        .add-todo-btn {
+            padding: 10px;
+            background-color: #f0f0f0;
+            border: 1px dashed #999;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .add-todo-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        .completed-todos-section {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .completed-todos-section h4 {
+            font-size: 14px;
+            color: #666;
+            margin: 0 0 10px 0;
+        }
+
+        /* Style modalu */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 5px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .btn-primary {
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: #c2185b;
+        }
+        
+        /* Sekcja z zapisanymi aktywnościami */
+        .saved-activities-section {
+            margin-bottom: 15px;
+        }
+
+        .saved-activities-title {
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .saved-activities-list {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-height: 150px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+        }
+
+        .saved-activity-item {
+            padding: 8px 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .saved-activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .saved-activity-text {
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .saved-activity-text:hover {
+            color: #e91e63;
+        }
+
+        .delete-saved-activity {
+            color: #e91e63;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 16px;
+            padding: 0 5px;
+        }
+
+        .reset-week-btn {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .reset-week-btn:hover {
+            background-color: #5a6268;
+        }
+
+        /* Style dla responsywności */
+        @@media (max-width: 768px) {
+            .day-name {
+                font-size: 14px;
+            }
+
+            .day-date {
+                font-size: 12px;
+            }
+
+            .tab-button {
+                padding: 8px 15px;
+                font-size: 16px;
+            }
+
+            .todo-card {
+                padding: 8px;
+            }
+
+            .todo-name {
+                font-size: 14px;
+            }
+
+            .todo-action-btn {
+                font-size: 14px;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .week-view {
+                flex-direction: column;
+                min-height: auto;
+            }
+
+            .days-header {
+                display: none;
+            }
+
+            .day-column {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+            }
+
+            .day-column:last-child {
+                border-bottom: none;
+            }
+
+            .day-column.today {
+                border: none;
+                background-color: rgba(233, 30, 99, 0.1);
+            }
+
+            .day-header-mobile {
+                display: flex;
+                justify-content: center;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header-tabs">
+            <div class="tabs-container">
+                <a href="/Diet/Index" class="tab-button">Dieta</a>
+                <a href="/ToDo/Index" class="tab-button active">ToDo</a>
+            </div>
+            <div class="profile-button">
+                <a href="/Profile/Index" class="profile-link">Mój profil <img src="~/images/zebatka.png" class="settings-icon" alt="Ustawienia" /></a>
+            </div>
+        </div>
+
+        <div class="content-container">
+            <!-- Nawigacja tygodniowa -->
+            <div class="week-navigation">
+                <button class="week-nav-btn" onclick="navigateWeek(-1)">◀</button>
+                <div class="week-nav-text">
+                    <span id="current-week-display">@Model.WeekDays.First().Date.ToString("dd.MM") - @Model.WeekDays.Last().Date.ToString("dd.MM")</span>
+                    @if (Model.WeekOffset != 0)
+                    {
+                        <button class="reset-week-btn" onclick="resetToCurrentWeek()">Dzisiaj</button>
+                    }
+                </div>
+                <button class="week-nav-btn" onclick="navigateWeek(1)">▶</button>
+            </div>
+
+            <!-- Nagłówki dni tygodnia -->
+            <div class="days-header">
+                @foreach (var day in Model.WeekDays)
+                {
+                    <div class="day-column @(day.IsToday ? "today" : "")">
+                        <div class="day-name">@day.Name</div>
+                        <div class="day-date">@day.Date.ToString("dd.MM")</div>
+                    </div>
+                }
+            </div>
+
+            <!-- Widok tygodnia -->
+            <div class="week-view">
+                @foreach (var day in Model.WeekDays)
+                {
+                    <div class="day-column @(day.IsToday ? "today" : "")">
+                        <!-- Nagłówek dnia widoczny tylko na mobilnych -->
+                        <div class="day-header-mobile" style="display: none;">
+                            <div class="day-name">@day.Name</div>
+                            <div class="day-date">@day.Date.ToString("dd.MM")</div>
+                        </div>
+
+                        <div class="todo-section">
+                            @if (Model.ToDos.ContainsKey(day.Date))
+                            {
+                                var activeTasks = Model.ToDos[day.Date].Where(t => !t.IsCompleted).ToList();
+                                @foreach (var task in activeTasks)
+                                {
+                                    <div class="todo-card" id="todo-@task.Id">
+                                        <div class="todo-content">
+                                            <p class="todo-name">@task.Task</p>
+                                        </div>
+                                        <div class="todo-actions">
+                                            <button class="todo-action-btn heart-btn" onclick="markTaskCompleted(@task.Id)" title="Oznacz jako wykonane">❤️</button>
+                                            <button class="todo-action-btn" onclick="editTask(@task.Id)" title="Edytuj zadanie">✏️</button>
+                                            <button class="todo-action-btn" onclick="deleteTask(@task.Id)" title="Usuń zadanie">🗑️</button>
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                            <div class="add-todo-btn" onclick="showAddTodoModal('@day.Date.ToString("yyyy-MM-dd")')">
+                                <span>Dodaj aktywność</span>
+                            </div>
+                        </div>
+
+                        @if (Model.ToDos.ContainsKey(day.Date))
+                        {
+                            var completedTasks = Model.ToDos[day.Date].Where(t => t.IsCompleted).ToList();
+                            @if (completedTasks.Any())
+                            {
+                                <div class="completed-todos-section">
+                                    <h4>Zakończone aktywności</h4>
+                                    @foreach (var task in completedTasks)
+                                    {
+                                        <div class="todo-card completed">
+                                            <div class="todo-content">
+                                                <p class="todo-name">@task.Task</p>
+                                            </div>
+                                            <div class="todo-actions">
+                                                <button class="todo-action-btn" onclick="unmarkTaskCompleted(@task.Id)" title="Oznacz jako niewykonane">↩️</button>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal dla dodawania/edycji zadania -->
+    <div id="todoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('todoModal')">&times;</span>
+            <h2 id="todoModalTitle">Dodaj zadanie</h2>
+            
+            <!-- Sekcja z zapisanymi aktywnościami -->
+            <div class="saved-activities-section">
+                <p class="saved-activities-title">Wybierz z zapisanych aktywności:</p>
+                <div class="saved-activities-list" id="savedActivitiesList">
+                    <!-- Lista zostanie wypełniona dynamicznie -->
+                </div>
+            </div>
+            
+            <form id="todoForm">
+                <input type="hidden" id="todoDate" name="Date" />
+                <input type="hidden" id="todoId" name="Id" />
+
+                <div class="form-group">
+                    <label for="todoTask">Zadanie:</label>
+                    <input type="text" id="todoTask" name="Task" class="form-control" required />
+                </div>
+                
+                <!-- Checkbox do zapisu aktywności jako szablon -->
+                <div class="form-group">
+                    <div style="display: flex; align-items: center;">
+                        <input type="checkbox" id="saveAsTemplate" name="saveAsTemplate" style="margin-right: 8px;">
+                        <label for="saveAsTemplate">Zapisz jako aktywność do wielokrotnego użycia</label>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-primary" id="saveTodoBtn" onclick="saveTodo()">Zapisz</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Zmienne globalne
+        let currentWeekOffset = @Model.WeekOffset; // Pobieramy aktualny offset z modelu
+        let savedActivities = [];
+        
+        // Ładowanie danych po załadowaniu strony
+        document.addEventListener('DOMContentLoaded', function() {
+            // Dostosowanie widoku dla urządzeń mobilnych
+            adjustForMobile();
+            
+            // Pobranie zapisanych aktywności
+            loadSavedActivities();
+            
+            // Nasłuchiwanie zmiany rozmiaru okna
+            window.addEventListener('resize', adjustForMobile);
+        });
+        
+        // Funkcja do dostosowania widoku dla urządzeń mobilnych
+        function adjustForMobile() {
+            const isMobile = window.innerWidth <= 576;
+            const dayHeadersMobile = document.querySelectorAll('.day-header-mobile');
+            
+            dayHeadersMobile.forEach(header => {
+                header.style.display = isMobile ? 'flex' : 'none';
+            });
+        }
+        
+        // Funkcja do powrotu do bieżącego tygodnia
+        function resetToCurrentWeek() {
+            window.location.href = '/ToDo/Index';
+        }
+        
+        // Nawigacja między tygodniami
+        function navigateWeek(offset) {
+            // Dodajemy do aktualnego offsetu
+            const newOffset = currentWeekOffset + offset;
+            window.location.href = `/ToDo/Index?weekOffset=${newOffset}`;
+        }
+        
+        // Pobranie zapisanych aktywności
+        async function loadSavedActivities() {
+            try {
+                const response = await fetch('/api/todo/saved-activities');
+                if (response.ok) {
+                    savedActivities = await response.json();
+                    updateSavedActivitiesList();
+                } else {
+                    console.error('Błąd podczas pobierania zapisanych aktywności');
+                }
+            } catch (error) {
+                console.error('Błąd:', error);
+            }
+        }
+        
+        // Aktualizacja listy zapisanych aktywności
+        function updateSavedActivitiesList() {
+            const listElement = document.getElementById('savedActivitiesList');
+            listElement.innerHTML = '';
+            
+            if (savedActivities.length === 0) {
+                listElement.innerHTML = '<div class="saved-activity-item">Brak zapisanych aktywności</div>';
+                return;
+            }
+            
+            savedActivities.forEach(activity => {
+                const item = document.createElement('div');
+                item.className = 'saved-activity-item';
+                
+                const textSpan = document.createElement('span');
+                textSpan.className = 'saved-activity-text';
+                textSpan.textContent = activity.task;
+                textSpan.onclick = () => {
+                    document.getElementById('todoTask').value = activity.task;
+                };
+                
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'delete-saved-activity';
+                deleteButton.innerHTML = '🗑️';
+                deleteButton.onclick = (e) => {
+                    e.stopPropagation(); // Prevent clicking on the parent
+                    deleteSavedActivity(activity.id);
+                };
+                
+                item.appendChild(textSpan);
+                item.appendChild(deleteButton);
+                listElement.appendChild(item);
+            });
+        }
+        
+        // Usunięcie zapisanej aktywności
+        async function deleteSavedActivity(id) {
+            if (confirm('Czy na pewno chcesz usunąć tę aktywność z zapisanych?')) {
+                try {
+                    const response = await fetch(`/api/todo/saved-activities/${id}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        // Aktualizacja listy po usunięciu
+                        savedActivities = savedActivities.filter(a => a.id !== id);
+                        updateSavedActivitiesList();
+                    } else {
+                        alert('Nie udało się usunąć aktywności.');
+                    }
+                } catch (error) {
+                    console.error('Błąd:', error);
+                    alert('Wystąpił błąd podczas usuwania aktywności.');
+                }
+            }
+        }
+
+        // Funkcje modalu
+        function showAddTodoModal(date) {
+            // Reset formularza
+            document.getElementById('todoForm').reset();
+            document.getElementById('todoId').value = '';
+            document.getElementById('todoDate').value = date;
+            document.getElementById('saveAsTemplate').checked = false; // Reset checkboxa
+            document.getElementById('saveTodoBtn').textContent = 'Zapisz';
+            document.getElementById('todoModalTitle').textContent = 'Dodaj zadanie';
+
+            document.getElementById('todoModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // API dla zadań
+        async function saveTodo() {
+            const form = document.getElementById('todoForm');
+            const formData = new FormData(form);
+
+            const data = {
+                id: formData.get('Id') || 0,
+                date: formData.get('Date'),
+                task: formData.get('Task'),
+                saveAsTemplate: document.getElementById('saveAsTemplate').checked
+            };
+
+            if (!data.task) {
+                alert('Proszę podać treść zadania.');
+                return;
+            }
+
+            try {
+                // Decydujemy czy aktualizujemy czy tworzymy
+                const isUpdate = data.id && data.id > 0;
+                const url = isUpdate ? `/api/todo/${data.id}` : '/api/todo';
+                const method = isUpdate ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                if (response.ok) {
+                    closeModal('todoModal');
+                    location.reload();
+                } else {
+                    alert('Wystąpił błąd podczas zapisywania zadania.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Wystąpił błąd podczas zapisywania zadania.');
+            }
+        }
+
+        async function editTask(id) {
+            try {
+                const response = await fetch(`/api/todo/${id}`);
+
+                if (response.ok) {
+                    const todo = await response.json();
+
+                    // Ustawienie wartości formularza
+                    document.getElementById('todoId').value = todo.id;
+                    document.getElementById('todoDate').value = todo.createdAt.split('T')[0];
+                    document.getElementById('todoTask').value = todo.task;
+                    document.getElementById('saveAsTemplate').checked = false; // Domyślnie nie zapisujemy jako szablon przy edycji
+
+                    // Aktualizacja UI
+                    document.getElementById('todoModalTitle').textContent = 'Edytuj zadanie';
+                    document.getElementById('saveTodoBtn').textContent = 'Zapisz zmiany';
+
+                    // Pokaż modal
+                    document.getElementById('todoModal').style.display = 'block';
+                } else {
+                    alert('Nie udało się pobrać danych zadania.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Wystąpił błąd podczas pobierania danych zadania.');
+            }
+        }
+
+        async function markTaskCompleted(id) {
+            try {
+                const response = await fetch(`/api/todo/${id}/complete`, {
+                    method: 'PUT',
+                });
+
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Wystąpił błąd podczas oznaczania zadania jako wykonanego.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Wystąpił błąd podczas oznaczania zadania jako wykonanego.');
+            }
+        }
+
+        async function unmarkTaskCompleted(id) {
+            try {
+                const response = await fetch(`/api/todo/${id}/uncomplete`, {
+                    method: 'PUT',
+                });
+
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Wystąpił błąd podczas oznaczania zadania jako niewykonanego.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Wystąpił błąd podczas oznaczania zadania jako niewykonanego.');
+            }
+        }
+
+        async function deleteTask(id) {
+            if (confirm('Czy na pewno chcesz usunąć to zadanie?')) {
+                try {
+                    const response = await fetch(`/api/todo/${id}`, {
+                        method: 'DELETE',
+                    });
+
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('Wystąpił błąd podczas usuwania zadania.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Wystąpił błąd podczas usuwania zadania.');
+                }
+            }
+        }
+
+        // Zamknij modal po kliknięciu poza nim
+        window.onclick = function (event) {
+            const modals = document.getElementsByClassName('modal');
+            for (let i = 0; i < modals.length; i++) {
+                if (event.target == modals[i]) {
+                    modals[i].style.display = 'none';
+                }
+            }
+        };
+    </script>
+</body>
+</html>
