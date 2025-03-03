@@ -610,6 +610,141 @@
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+        /* Nowe style dla składników */
+        .ingredients-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .ingredient-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 12px;
+            background-color: #f5f5f5;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ingredient-card:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .ingredient-card-header {
+            font-weight: bold;
+            font-size: 15px;
+            margin-bottom: 8px;
+            color: #e91e63;
+        }
+
+        .ingredient-card-macros {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .ingredient-card-macros div {
+            margin-bottom: 3px;
+        }
+
+        /* Poprawka dla składników w przepisie */
+        .ingredient-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .ingredient-item span {
+            flex: 1;
+            font-weight: bold;
+        }
+
+        .ingredient-amount {
+            width: 60px;
+            text-align: right;
+            margin: 0 8px;
+        }
+
+        .ingredient-macros {
+            font-size: 11px;
+            color: #666;
+            margin-left: 10px;
+        }
+        /* Style dla poziomego przewijania przepisów i składników */
+        .recipes-scroll-container,
+        .ingredients-scroll-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-bottom: 15px;
+        }
+
+        .recipes-scroll-wrapper,
+        .ingredients-scroll-wrapper {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 10px;
+            padding: 5px 0;
+            min-width: 100%;
+        }
+
+        .recipe-item,
+        .ingredient-card {
+            flex: 0 0 auto;
+            width: 200px;
+            margin-right: 10px;
+        }
+
+        /* Poprawki dla responsywności przycisków */
+        .btn-save-meal {
+            width: 100%;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+            .btn-save-meal:hover {
+                background-color: #c2185b;
+            }
+
+        /* Style dla zaznaczonych elementów */
+        .recipe-item.selected,
+        .ingredient-card.selected {
+            border: 2px solid #e91e63;
+            background-color: rgba(233, 30, 99, 0.1);
+        }
+        .recipe-edit-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(233, 30, 99, 0.8);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            display: none;
+            z-index: 5;
+        }
+
+        .recipe-item {
+            position: relative;
+        }
+
+        .recipe-item:hover .recipe-edit-btn {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -827,10 +962,14 @@
                     </div>
 
                     <div id="private-recipes" class="tab-content active">
-                        <div class="recipe-grid" id="private-recipe-grid">
-                            @foreach (var recipe in Model.Recipes.Where(r => r.UserId == Model.CurrentUser.Id))
-                            {
-                                <div class="recipe-item" data-id="@recipe.Id" data-name="@recipe.Name.ToLower()" onclick="selectRecipe(this, @recipe.Id)">
+                        <div class="recipes-scroll-container">
+                            <div class="recipes-scroll-wrapper" id="private-recipe-grid">
+                                @foreach (var recipe in Model.Recipes.Where(r => r.UserId == Model.CurrentUser.Id))
+                                {
+                                   <div class="recipe-item" data-id="@recipe.Id" data-name="@recipe.Name.ToLower()" onclick="selectRecipe(this, @recipe.Id)">
+                                    <button type="button" class="recipe-edit-btn" onclick="editRecipe(@recipe.Id); event.stopPropagation();">
+                                        <i class="fas fa-edit"></i> Edytuj
+                                    </button>
                                     @if (recipe.ImageData != null)
                                     {
                                         <img src="data:image/jpeg;base64,@Convert.ToBase64String(recipe.ImageData)" alt="@recipe.Name" class="recipe-thumb" />
@@ -849,39 +988,41 @@
                                         <div><i class="fas fa-bread-slice"></i> W: @recipe.Carbs g</div>
                                     </div>
                                 </div>
-                            }
+                                }
+                            </div>
                         </div>
                     </div>
 
                     <div id="public-recipes" class="tab-content">
-                        <div class="recipe-grid" id="public-recipe-grid">
-                            @foreach (var recipe in Model.Recipes.Where(r => r.IsPublic && r.UserId != Model.CurrentUser.Id))
-                            {
-                                <div class="recipe-item" data-id="@recipe.Id" data-name="@recipe.Name.ToLower()" onclick="selectRecipe(this, @recipe.Id)">
-                                    @if (recipe.ImageData != null)
-                                    {
-                                        <img src="data:image/jpeg;base64,@Convert.ToBase64String(recipe.ImageData)" alt="@recipe.Name" class="recipe-thumb" />
-                                    }
-                                    else
-                                    {
-                                        <div class="recipe-thumb-placeholder">
-                                            <i class="fas fa-image"></i>
+                        <div class="recipes-scroll-container">
+                            <div class="recipes-scroll-wrapper" id="public-recipe-grid">
+                                @foreach (var recipe in Model.Recipes.Where(r => r.IsPublic && r.UserId != Model.CurrentUser.Id))
+                                {
+                                    <div class="recipe-item" data-id="@recipe.Id" data-name="@recipe.Name.ToLower()" onclick="selectRecipe(this, @recipe.Id)">
+                                        @if (recipe.ImageData != null)
+                                        {
+                                            <img src="data:image/jpeg;base64,@Convert.ToBase64String(recipe.ImageData)" alt="@recipe.Name" class="recipe-thumb" />
+                                        }
+                                        else
+                                        {
+                                            <div class="recipe-thumb-placeholder">
+                                                <i class="fas fa-image"></i>
+                                            </div>
+                                        }
+                                        <div class="recipe-title">@recipe.Name</div>
+                                        <div class="recipe-macros">
+                                            <div><i class="fas fa-fire"></i> @recipe.Calories kcal</div>
+                                            <div><i class="fas fa-drumstick-bite"></i> B: @recipe.Protein g</div>
+                                            <div><i class="fas fa-cheese"></i> T: @recipe.Fat g</div>
+                                            <div><i class="fas fa-bread-slice"></i> W: @recipe.Carbs g</div>
                                         </div>
-                                    }
-                                    <div class="recipe-title">@recipe.Name</div>
-                                    <div class="recipe-macros">
-                                        <div><i class="fas fa-fire"></i> @recipe.Calories kcal</div>
-                                        <div><i class="fas fa-drumstick-bite"></i> B: @recipe.Protein g</div>
-                                        <div><i class="fas fa-cheese"></i> T: @recipe.Fat g</div>
-                                        <div><i class="fas fa-bread-slice"></i> W: @recipe.Carbs g</div>
                                     </div>
-                                </div>
-                            }
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
                 <input type="hidden" id="recipeId" name="RecipeId" />
-        </div>
 
         <!-- Tab składników -->
         <div id="ingredients-tab" class="tab-content">
@@ -890,65 +1031,28 @@
                 <button type="button" class="search-btn"><i class="fas fa-search"></i></button>
             </div>
 
-            <div class="recipe-grid" id="ingredients-grid">
-                @foreach (var ingredient in Model.Ingredients)
-                {
-                    <div class="recipe-item" data-id="@ingredient.Id" data-name="@ingredient.Name.ToLower()" onclick="addIngredientToMeal(@ingredient.Id, '@ingredient.Name', @ingredient.Calories, @ingredient.Protein, @ingredient.Fat, @ingredient.Carbs)">
-                        <div class="recipe-thumb-placeholder">
-                            <i class="fas fa-carrot"></i>
+            <div class="ingredients-scroll-container">
+                <div class="ingredients-scroll-wrapper" id="ingredients-grid">
+                    @foreach (var ingredient in Model.Ingredients.OrderBy(i => i.Name))
+                    {
+                        <div class="ingredient-card" data-id="@ingredient.Id" data-name="@ingredient.Name.ToLower()" onclick="selectIngredient(this, @ingredient.Id, '@ingredient.Name', @ingredient.Calories, @ingredient.Protein, @ingredient.Fat, @ingredient.Carbs)">
+                            <div class="ingredient-card-header">@ingredient.Name</div>
+                            <div class="ingredient-card-macros">
+                                <div><i class="fas fa-fire"></i> @ingredient.Calories kcal/100g</div>
+                                <div><i class="fas fa-drumstick-bite"></i> Białko: @ingredient.Protein g</div>
+                                <div><i class="fas fa-cheese"></i> Tłuszcz: @ingredient.Fat g</div>
+                                <div><i class="fas fa-bread-slice"></i> Węgl.: @ingredient.Carbs g</div>
+                            </div>
                         </div>
-                        <div class="recipe-title">@ingredient.Name</div>
-                        <div class="recipe-macros">
-                            <div><i class="fas fa-fire"></i> @ingredient.Calories kcal/100 g</div>
-                            <div><i class="fas fa-drumstick-bite"></i> B: @ingredient.Protein g</div>
-                            <div><i class="fas fa-cheese"></i> T: @ingredient.Fat g</div>
-                            <div><i class="fas fa-bread-slice"></i> W: @ingredient.Carbs g</div>
-                        </div>
-                    </div>
-                }
-            </div>
-
-            <div class="selected-ingredients">
-                <h4>Wybrane składniki:</h4>
-                <div id="selected-ingredients-list" class="ingredient-list">
-                    <!-- Tu będą dodawane wybrane składniki -->
+                    }
                 </div>
-            </div>
-
-            <!-- Formularz dodawania nowego składnika -->
-            <div class="new-ingredient-form">
-                <h4>Dodaj nowy składnik:</h4>
-                <div class="form-group">
-                    <label for="new-ingredient-name">Nazwa składnika:</label>
-                    <input type="text" id="new-ingredient-name" class="form-control" placeholder="Nazwa nowego składnika" />
-                </div>
-
-                <div class="macros-grid">
-                    <div class="macros-input">
-                        <label for="new-ingredient-calories"><i class="fas fa-fire"></i> Kalorie (kcal/100g):</label>
-                        <input type="number" id="new-ingredient-calories" min="0" value="0" />
-                    </div>
-                    <div class="macros-input">
-                        <label for="new-ingredient-protein"><i class="fas fa-drumstick-bite"></i> Białko (g/100g):</label>
-                        <input type="number" id="new-ingredient-protein" min="0" step="0.1" value="0" />
-                    </div>
-                    <div class="macros-input">
-                        <label for="new-ingredient-fat"><i class="fas fa-cheese"></i> Tłuszcz (g/100g):</label>
-                        <input type="number" id="new-ingredient-fat" min="0" step="0.1" value="0" />
-                    </div>
-                    <div class="macros-input">
-                        <label for="new-ingredient-carbs"><i class="fas fa-bread-slice"></i> Węglowodany (g/100g):</label>
-                        <input type="number" id="new-ingredient-carbs" min="0" step="0.1" value="0" />
-                    </div>
-                </div>
-
-                <button type="button" class="add-ingredient-btn" onclick="addNewIngredientWithMacros()">
-                    <i class="fas fa-plus"></i> Dodaj składnik
-                </button>
             </div>
         </div>
-
-        <button type="button" class="btn btn-primary" id="saveMealBtn" onclick="saveMeal()">Zapisz</button>
+        <div class="form-group mt-4">
+            <button type="button" class="btn btn-primary btn-block" id="saveMealBtn" onclick="saveMeal()">
+            <i class="fas fa-save"></i> Zapisz
+        </button>
+        </div>
         </form>
     </div>
     </div>
@@ -1312,11 +1416,19 @@
         // Dodawanie składnika do przepisu
         function addIngredientToRecipe() {
             const ingredientSelect = document.getElementById('ingredientSelect');
-            const ingredientId = ingredientSelect.value;
+            const ingredientId = parseInt(ingredientSelect.value);
             const amount = document.getElementById('ingredientAmount').value;
 
-            if (!ingredientId || !amount) {
-                alert('Wybierz składnik i podaj ilość');
+            // Sprawdź czy wybrano prawidłowy składnik
+            if (!ingredientId || isNaN(ingredientId) || ingredientId <= 0) {
+                alert('Wybierz prawidłowy składnik z listy');
+                console.error('Nieprawidłowe ID składnika:', ingredientId);
+                return;
+            }
+
+            // Sprawdź czy podano ilość
+            if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
+                alert('Podaj prawidłową ilość składnika');
                 return;
             }
 
@@ -1325,6 +1437,17 @@
             const protein = parseFloat(ingredientSelect.options[ingredientSelect.selectedIndex].dataset.protein) || 0;
             const fat = parseFloat(ingredientSelect.options[ingredientSelect.selectedIndex].dataset.fat) || 0;
             const carbs = parseFloat(ingredientSelect.options[ingredientSelect.selectedIndex].dataset.carbs) || 0;
+
+            // Debugowanie
+            console.log('Dodaję składnik do przepisu:', {
+                id: ingredientId,
+                name: ingredientName,
+                amount: amount,
+                calories: calories,
+                protein: protein,
+                fat: fat,
+                carbs: carbs
+            });
 
             addIngredientToRecipeWithMacros(ingredientId, ingredientName, amount, calories, protein, fat, carbs);
         }
@@ -1387,35 +1510,56 @@
         // Dodawanie składnika do przepisu z wartościami odżywczymi
         function addIngredientToRecipeWithMacros(ingredientId, ingredientName, amount, calories, protein, fat, carbs) {
             const list = document.getElementById('recipeIngredients');
+    
+            // Debug - logowanie wartości wejściowych
+            console.log("Dodawanie składnika:", {
+                ingredientId: ingredientId,
+                name: ingredientName,
+                amount: amount,
+                calories: calories,
+                protein: protein, 
+                fat: fat,
+                carbs: carbs
+            });
 
-            // Sprawdź czy składnik nie został już dodany
+            // Sprawdzanie czy ID jest poprawne
+            if (!ingredientId || isNaN(parseInt(ingredientId)) || parseInt(ingredientId) <= 0) {
+                console.error("Nieprawidłowe ID składnika:", ingredientId);
+                alert("Nieprawidłowe ID składnika. Proszę wybrać składnik z listy.");
+                return;
+            }
+
+            // Sprawdzenie czy składnik już istnieje
             if (document.querySelector(`.ingredient-item[data-ing-id="${ingredientId}"]`)) {
+                alert('Ten składnik został już dodany do przepisu');
                 return;
             }
 
             const item = document.createElement('div');
             item.className = 'ingredient-item';
-            item.setAttribute('data-ing-id', ingredientId);
+    
+            // Bardzo ważna zmiana - upewniamy się, że ID jest liczbą całkowitą
+            const numericId = parseInt(ingredientId);
+            item.setAttribute('data-ing-id', numericId);
+    
             item.setAttribute('data-calories', calories);
             item.setAttribute('data-protein', protein);
             item.setAttribute('data-fat', fat);
             item.setAttribute('data-carbs', carbs);
 
             item.innerHTML = `
-                        <span>${ingredientName}</span>
-                        <input type="number" class="ingredient-amount form-control" value="${amount}" min="0" step="0.1" onchange="calculateRecipeMacros()" />
-                        <button type="button" class="remove-ingredient-btn" onclick="removeIngredientFromRecipe(this)">
-                            <i class="fas fa-times"></i>
-                        </button>
-                        <input type="hidden" name="RecipeIngredients[].IngredientId" value="${ingredientId}" />
-                        <input type="hidden" name="RecipeIngredients[].Amount" value="${amount}" />
-                        <div class="meal-macros" style="font-size: 10px; margin-top: 4px;">
-                            <span><i class="fas fa-fire"></i> ${calories} kcal/100g</span>
-                            <span><i class="fas fa-drumstick-bite"></i> ${protein}g</span>
-                            <span><i class="fas fa-cheese"></i> ${fat}g</span>
-                            <span><i class="fas fa-bread-slice"></i> ${carbs}g</span>
-                        </div>
-                    `;
+                <span>${ingredientName}</span>
+                <input type="number" class="ingredient-amount form-control" value="${amount}" min="0.1" step="0.1" onchange="calculateRecipeMacros()" />
+                <button type="button" class="remove-ingredient-btn" onclick="removeIngredientFromRecipe(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="meal-macros" style="font-size: 10px; margin-top: 4px;">
+                    <span><i class="fas fa-fire"></i> ${calories} kcal/100g</span>
+                    <span><i class="fas fa-drumstick-bite"></i> ${protein}g</span>
+                    <span><i class="fas fa-cheese"></i> ${fat}g</span>
+                    <span><i class="fas fa-bread-slice"></i> ${carbs}g</span>
+                </div>
+            `;
 
             list.appendChild(item);
 
@@ -1425,6 +1569,16 @@
 
             // Oblicz makroskładniki przepisu
             calculateRecipeMacros();
+    
+            // Debug - wypisz wszystkie składniki po dodaniu nowego
+            console.log("Lista składników po dodaniu:");
+            document.querySelectorAll('#recipeIngredients .ingredient-item').forEach((item, index) => {
+                console.log(`Składnik #${index + 1}:`, {
+                    id: item.getAttribute('data-ing-id'),
+                    name: item.querySelector('span').textContent,
+                    amount: item.querySelector('.ingredient-amount').value
+                });
+            });
         }
 
         // Usuwanie składnika z przepisu
@@ -1434,7 +1588,7 @@
             calculateRecipeMacros();
         }
 
-        // Obliczanie makroskładników przepisu na podstawie składników
+         // Obliczanie makroskładników przepisu na podstawie składników
         function calculateRecipeMacros() {
             let totalCalories = 0;
             let totalProtein = 0;
@@ -1452,9 +1606,6 @@
                 totalProtein += protein * amount / 100;
                 totalFat += fat * amount / 100;
                 totalCarbs += carbs * amount / 100;
-
-                // Aktualizuj ukryte pole z ilością
-                item.querySelector('input[name="RecipeIngredients[].Amount"]').value = amount;
             });
 
             // Zaokrąglij wartości
@@ -1470,7 +1621,7 @@
             document.getElementById('recipeCarbs').value = totalCarbs;
         }
 
-        // Pokazywanie modalu dodawania posiłku
+         // Pokazywanie modalu dodawania posiłku
         function showAddMealModal(date) {
             // Reset formularza
             document.getElementById('addMealForm').reset();
@@ -1479,13 +1630,29 @@
             document.getElementById('saveMealBtn').textContent = 'Zapisz';
             document.querySelector('#addMealModal h2').textContent = 'Dodaj posiłek';
 
-            // Wyczyść wybrane składniki
-            document.getElementById('selected-ingredients-list').innerHTML = '';
-
             // Wyczyść zaznaczenie przepisów
             document.querySelectorAll('.recipe-item').forEach(item => {
                 item.classList.remove('selected');
             });
+    
+            // Wyczyść zaznaczenie składników
+            document.querySelectorAll('.ingredient-card').forEach(item => {
+                item.classList.remove('selected');
+            });
+    
+            // Usuń ukryte pola z poprzednich wyborów
+            const oldSelectedIngredient = document.getElementById('selectedIngredientId');
+            if (oldSelectedIngredient) {
+                oldSelectedIngredient.remove();
+            }
+    
+            const oldSelectedIngredientName = document.getElementById('selectedIngredientName');
+            if (oldSelectedIngredientName) {
+                oldSelectedIngredientName.remove();
+            }
+    
+            // Zresetuj ID przepisu
+            document.getElementById('recipeId').value = '';
 
             // Przywróć domyślne zakładki
             switchTab('recipes');
@@ -1513,129 +1680,189 @@
         }
 
         // Zapisywanie przepisu
-        // Zapisywanie przepisu
         async function saveRecipe() {
-            try {
-                const form = document.getElementById('recipeForm');
-                const formData = new FormData(form);
+    try {
+        const form = document.getElementById('recipeForm');
+        const formData = new FormData(form);
 
-                // Zbierz wszystkie składniki
-                const ingredients = [];
-                document.querySelectorAll('#recipeIngredients .ingredient-item').forEach(item => {
-                    ingredients.push({
-                        ingredientId: parseInt(item.getAttribute('data-ing-id')),
-                        amount: parseFloat(item.querySelector('.ingredient-amount').value)
-                    });
-                });
+        // Sprawdź wymagane pola
+        const recipeName = formData.get('Name');
+        if (!recipeName || recipeName.trim() === '') {
+            alert('Nazwa przepisu jest wymagana.');
+            return;
+        }
 
-                formData.append('RecipeIngredients', JSON.stringify(ingredients));
+        // Zbierz wszystkie składniki
+        const ingredients = [];
+        const ingredientItems = document.querySelectorAll('#recipeIngredients .ingredient-item');
 
-                // Decydujemy czy aktualizujemy czy tworzymy
-                const isUpdate = formData.get('Id') && parseInt(formData.get('Id')) > 0;
-                const url = isUpdate ? `/api/recipe/${formData.get('Id')}` : '/api/recipe';
-                const method = isUpdate ? 'PUT' : 'POST';
+        console.log('Znaleziono elementów składników:', ingredientItems.length);
 
-                const response = await fetch(url, {
-                    method: method,
-                    body: formData,
-                });
+        if (ingredientItems.length === 0) {
+            alert('Dodaj przynajmniej jeden składnik do przepisu.');
+            return;
+        }
 
-                if (response.ok) {
-                    closeModal('recipeModal');
-                    location.reload();
-                } else {
-                    alert('Wystąpił błąd podczas zapisywania przepisu.');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Wystąpił błąd podczas zapisywania przepisu.');
+        // Zbieranie danych o składnikach
+        for (let i = 0; i < ingredientItems.length; i++) {
+            const item = ingredientItems[i];
+
+            // Pobierz wartości
+            const ingredientIdString = item.getAttribute('data-ing-id');
+            const amountString = item.querySelector('.ingredient-amount').value;
+
+            // Parsuj do liczb
+            const ingredientId = parseInt(ingredientIdString);
+            const amount = parseFloat(amountString);
+
+            console.log(`Składnik #${i+1}:`, {
+                dataIngId: ingredientIdString,
+                parsedId: ingredientId,
+                amount: amount
+            });
+
+            // Dodaj składnik do listy z nazwami pól dokładnie takimi jak w C#
+            ingredients.push({
+                IngredientId: ingredientId,  // Z dużej litery, jak w C#
+                Amount: amount               // Z dużej litery, jak w C#
+            });
+        }
+
+        // Diagnostyka składników
+        console.log('Składniki przed serializacją:', ingredients);
+
+        // Serializuj składniki do JSON
+        const ingredientsJson = JSON.stringify(ingredients);
+        console.log('JSON składników (surowy):', ingredientsJson);
+
+        // Test deserializacji
+        const testParse = JSON.parse(ingredientsJson);
+        console.log('JSON po deserializacji:', testParse);
+
+        // Usuń stare dane składników (jeśli istnieją)
+        formData.delete('RecipeIngredients');
+
+        // Dodaj nową wartość
+        formData.append('RecipeIngredients', ingredientsJson);
+
+        // Sprawdź FormData
+        console.log('Dane formularza:');
+        for (let [key, value] of formData.entries()) {
+            if (key === 'RecipeIngredients') {
+                console.log(`${key}: ${value}`);
             }
         }
 
-        // Zapisywanie posiłku
-        async function saveMeal() {
+        // Upewnij się, że wszystkie wymagane wartości makroskładników są ustawione
+        const calories = document.getElementById('recipeCalories').value || '0';
+        const protein = document.getElementById('recipeProtein').value || '0';
+        const fat = document.getElementById('recipeFat').value || '0';
+        const carbs = document.getElementById('recipeCarbs').value || '0';
+
+        formData.set('Calories', calories);
+        formData.set('Protein', protein.toString().replace(',', '.'));
+        formData.set('Fat', fat.toString().replace(',', '.'));
+        formData.set('Carbs', carbs.toString().replace(',', '.'));
+
+        // Sprawdź czy przepis jest publiczny
+        const isPublic = document.getElementById('recipeIsPublic').checked;
+        formData.set('IsPublic', isPublic.toString());
+
+        // Decydujemy czy aktualizujemy czy tworzymy
+        const recipeId = formData.get('Id');
+        const isUpdate = recipeId && parseInt(recipeId) > 0;
+        const url = isUpdate ? `/api/recipe/${recipeId}` : '/api/recipe';
+        const method = isUpdate ? 'PUT' : 'POST';
+
+        // Finalne logowanie danych przed wysłaniem
+        console.log('Wysyłane dane:', {
+            url: url,
+            method: method,
+            id: recipeId,
+            recipeName: formData.get('Name'),
+            ingredients: ingredients,
+            ingredientsJson: ingredientsJson,
+            calories: formData.get('Calories'),
+            protein: formData.get('Protein'),
+            fat: formData.get('Fat'),
+            carbs: formData.get('Carbs'),
+            isPublic: formData.get('IsPublic')
+        });
+
+        // Pokaż stan ładowania
+        const saveButton = document.querySelector('#recipeModal button.btn-primary');
+        const originalButtonText = saveButton.textContent;
+        saveButton.textContent = 'Zapisywanie...';
+        saveButton.disabled = true;
+
+        // Wyślij żądanie
+        const response = await fetch(url, {
+            method: method,
+            body: formData,
+        });
+
+        // Przywróć oryginalny stan przycisku
+        saveButton.textContent = originalButtonText;
+        saveButton.disabled = false;
+
+        if (response.ok) {
+            console.log('Przepis został pomyślnie zapisany');
+            closeModal('recipeModal');
+            location.reload();
+        } else {
+            // Próba uzyskania szczegółów błędu
             try {
-                const form = document.getElementById('addMealForm');
-                const formData = new FormData(form);
+                const errorText = await response.text();
+                console.error('Błąd odpowiedzi:', errorText);
 
-                // Przygotuj dane w zależności od wybranej zakładki
-                let activeTab = '';
-                document.querySelectorAll('#addMealForm .tab').forEach((tab, index) => {
-                    if (tab.classList.contains('active')) {
-                        activeTab = tab.textContent.trim().toLowerCase();
-                    }
-                });
-
-                const data = {
-                    id: formData.get('Id') || 0,
-                    date: formData.get('Date'),
-                    mealType: formData.get('MealType'),
-                    recipeId: null,
-                    customEntry: null,
-                    ingredients: []
-                };
-
-                if (activeTab === 'przepisy') {
-                    data.recipeId = document.getElementById('recipeId').value || null;
-                    if (!data.recipeId) {
-                        alert('Proszę wybrać przepis.');
-                        return;
-                    }
-                } else if (activeTab === 'składniki') {
-                    const ingredients = [];
-                    document.querySelectorAll('#selected-ingredients-list .ingredient-item').forEach(item => {
-                        ingredients.push({
-                            ingredientId: parseInt(item.getAttribute('data-id')),
-                            amount: parseFloat(item.querySelector('.ingredient-amount').value)
-                        });
-                    });
-
-                    if (ingredients.length === 0) {
-                        alert('Proszę dodać przynajmniej jeden składnik.');
-                        return;
-                    }
-
-                    data.ingredients = ingredients;
-                    data.customEntry = 'Wybrane składniki';
+                // Pokaż szczegóły błędu w alercie
+                let errorMessage = `Błąd: ${response.status} ${response.statusText}`;
+                if (errorText) {
+                    errorMessage += `\n\nSzczegóły: ${errorText}`;
                 }
-
-                // Decydujemy czy aktualizujemy czy tworzymy
-                const isUpdate = data.id && data.id > 0;
-                const url = isUpdate ? `/api/mealplan/${data.id}` : '/api/mealplan';
-                const method = isUpdate ? 'PUT' : 'POST';
-
-                const response = await fetch(url, {
-                    method: method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
-                });
-
-                if (response.ok) {
-                    closeModal('addMealModal');
-                    location.reload();
-                } else {
-                    alert('Wystąpił błąd podczas zapisywania posiłku.');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Wystąpił błąd podczas zapisywania posiłku.');
+                alert(errorMessage);
+            } catch (errorReadingError) {
+                console.error('Błąd podczas czytania odpowiedzi błędu:', errorReadingError);
+                alert(`Wystąpił błąd podczas zapisywania przepisu: ${response.status} ${response.statusText}`);
             }
         }
+    } catch (error) {
+        console.error('Wystąpił wyjątek:', error);
+        alert(`Wystąpił błąd podczas zapisywania przepisu: ${error.message}`);
+    }
+}
 
         // Edycja posiłku
         async function editMeal(id) {
             try {
-                const response = await fetch(`/api/mealplan/${id}`);
+                // Dodaj timeout i obsługę problemów z połączeniem
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 sekund timeout
+        
+                const response = await fetch(`/api/mealplan/${id}`, {
+                    signal: controller.signal,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+        
+                clearTimeout(timeoutId);
 
                 if (response.ok) {
                     const meal = await response.json();
 
                     // Ustawienie wartości formularza
                     document.getElementById('mealId').value = meal.id;
-                    document.getElementById('mealDate').value = meal.date.split('T')[0];
-                    document.getElementById('mealType').value = meal.mealType;
+                    document.getElementById('mealDate').value = meal.date ? meal.date.split('T')[0] : '';
+                    document.getElementById('mealType').value = meal.mealType || 'Sniadanie';
+
+                    // Wyczyść zaznaczenie wszystkich elementów
+                    document.querySelectorAll('.recipe-item').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+                    document.querySelectorAll('.ingredient-card').forEach(item => {
+                        item.classList.remove('selected');
+                    });
 
                     // Wybór odpowiedniej zakładki i wypełnienie danych
                     if (meal.recipeId) {
@@ -1654,42 +1881,29 @@
 
                             // Zaznacz przepis
                             selectRecipe(recipeItem, meal.recipeId);
+                    
+                            // Przewiń do zaznaczonego przepisu
+                            recipeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                         }
-                    } else if (meal.ingredients && meal.ingredients.length > 0) {
-                        // Są to składniki
+                    } else if (meal.customEntry) {
+                        // Przejdź do zakładki składników, jeśli to składnik
                         switchTab('ingredients');
-
-                        // Wyczyść listę składników
-                        document.getElementById('selected-ingredients-list').innerHTML = '';
-
-                        // Dodaj składniki
-                        meal.ingredients.forEach(ing => {
-                            // Znajdź nazwę składnika
-                            const ingredientItem = document.querySelector(`.recipe-item[data-id="${ing.ingredientId}"]`);
-                            const ingredientName = ingredientItem ? ingredientItem.querySelector('.recipe-title').textContent : `Składnik #${ing.ingredientId}`;
-
-                            // Pobierz wartości odżywcze
-                            let calories = 0, protein = 0, fat = 0, carbs = 0;
-                            if (ingredientItem) {
-                                const macros = ingredientItem.querySelectorAll('.recipe-macros div');
-                                if (macros.length >= 1) calories = parseFloat(macros[0].textContent.match(/\d+(\.\d+)?/)) || 0;
-                                if (macros.length >= 2) protein = parseFloat(macros[1].textContent.match(/\d+(\.\d+)?/)) || 0;
-                                if (macros.length >= 3) fat = parseFloat(macros[2].textContent.match(/\d+(\.\d+)?/)) || 0;
-                                if (macros.length >= 4) carbs = parseFloat(macros[3].textContent.match(/\d+(\.\d+)?/)) || 0;
+                
+                        // Próba wyodrębnienia ID składnika z customEntry
+                        const match = meal.customEntry.match(/Składnik.*?(\d+)/);
+                        if (match && match[1]) {
+                            const ingredientId = match[1];
+                            const ingredientCard = document.querySelector(`.ingredient-card[data-id="${ingredientId}"]`);
+                    
+                            if (ingredientCard) {
+                                // Zaznacz składnik
+                                const ingredientName = ingredientCard.querySelector('.ingredient-card-header').textContent;
+                                selectIngredient(ingredientCard, ingredientId, ingredientName);
+                        
+                                // Przewiń do zaznaczonego składnika
+                                ingredientCard.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                             }
-
-                            // Dodaj składnik do listy z makroskładnikami
-                            addIngredientToMeal(ing.ingredientId, ingredientName, calories, protein, fat, carbs);
-
-                            // Zaktualizuj ilość
-                            const item = document.querySelector(`.ingredient-item[data-id="${ing.ingredientId}"]`);
-                            if (item) {
-                                item.querySelector('.ingredient-amount').value = ing.amount;
-                            }
-                        });
-
-                        // Aktualizuj makroskładniki posiłku
-                        updateMealMacros();
+                        }
                     }
 
                     // Aktualizacja UI
@@ -1699,12 +1913,67 @@
                     // Pokaż modal
                     document.getElementById('addMealModal').style.display = 'block';
                 } else {
-                    alert('Nie udało się pobrać danych posiłku.');
+                    console.error('Nie udało się pobrać danych posiłku:', response.status, response.statusText);
+                    alert('Nie udało się pobrać danych posiłku. Kod błędu: ' + response.status);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Wystąpił błąd podczas pobierania danych posiłku.');
+                if (error.name === 'AbortError') {
+                    alert('Upłynął czas oczekiwania na odpowiedź serwera. Spróbuj ponownie.');
+                } else {
+                    alert('Wystąpił błąd podczas pobierania danych posiłku: ' + error.message);
+                }
             }
+        }
+        // Wybór składnika 
+        function selectIngredient(element, ingredientId, ingredientName, calories, protein, fat, carbs) {
+            // Usuń zaznaczenie ze wszystkich składników
+            document.querySelectorAll('.ingredient-card').forEach(item => {
+                item.classList.remove('selected');
+            });
+
+            // Zaznacz wybrany składnik
+            element.classList.add('selected');
+    
+            // Usuń stare ukryte pola, jeśli istnieją
+            const oldInput = document.getElementById('selectedIngredientId');
+            if (oldInput) oldInput.remove();
+    
+            const oldNameInput = document.getElementById('selectedIngredientName');
+            if (oldNameInput) oldNameInput.remove();
+    
+            // Dodaj ukryte pole z ID składnika
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.id = 'selectedIngredientId';
+            hiddenInput.name = 'SelectedIngredientId';
+            hiddenInput.value = ingredientId;
+            document.getElementById('addMealForm').appendChild(hiddenInput);
+    
+            // Dodaj ukryte pole z nazwą składnika
+            const hiddenNameInput = document.createElement('input');
+            hiddenNameInput.type = 'hidden';
+            hiddenNameInput.id = 'selectedIngredientName';
+            hiddenNameInput.name = 'SelectedIngredientName';
+            hiddenNameInput.value = ingredientName;
+            document.getElementById('addMealForm').appendChild(hiddenNameInput);
+    
+            // Wyczyść ewentualne zaznaczenie przepisu
+            document.getElementById('recipeId').value = '';
+            document.querySelectorAll('.recipe-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+        }
+
+        // Funkcja pomocnicza do wyciągania ID składnika z customEntry
+        function extractIngredientId(customEntry) {
+            if (!customEntry) return null;
+    
+            const match = customEntry.match(/Składnik ID: (\d+)/);
+            if (match && match[1]) {
+                return parseInt(match[1]);
+            }
+            return null;
         }
 
         // Edycja przepisu
@@ -1821,12 +2090,24 @@
         // Szczegóły przepisu
         async function showRecipeDetails(id) {
             try {
-                const response = await fetch(`/api/recipe/${id}`);
+                // Dodaj timeout i obsługę problemów z połączeniem
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 sekund timeout
+        
+                const response = await fetch(`/api/recipe/${id}`, {
+                    signal: controller.signal,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+        
+                clearTimeout(timeoutId);
 
                 if (response.ok) {
                     const recipe = await response.json();
                     const content = document.getElementById('recipeDetailsContent');
 
+                    // Reszta kodu pozostaje bez zmian
                     let imageHtml = '';
                     if (recipe.imageData) {
                         imageHtml = `<img src="data:image/jpeg;base64,${recipe.imageData}" alt="${recipe.name}" style="max-width: 100%; max-height: 300px; object-fit: cover; border-radius: 5px; margin-bottom: 15px;" />`;
@@ -1836,49 +2117,185 @@
                     if (recipe.recipeIngredients && recipe.recipeIngredients.length > 0) {
                         ingredientsHtml = '<h3>Składniki:</h3><ul>';
                         recipe.recipeIngredients.forEach(ri => {
-                            ingredientsHtml += `<li>${ri.amount} g ${ri.ingredient.name}</li>`;
+                            const ingredientName = ri.ingredient ? ri.ingredient.name : 'Nieznany składnik';
+                            ingredientsHtml += `<li>${ri.amount} g ${ingredientName}</li>`;
                         });
                         ingredientsHtml += '</ul>';
                     }
 
                     content.innerHTML = `
-                                        <div style="display: flex; justify-content: space-between; align-items: start;">
-                                            <h2>${recipe.name}</h2>
-                                            <button type="button" class="btn btn-primary" onclick="editRecipe(${recipe.id})">
-                                                <i class="fas fa-edit"></i> Edytuj przepis
-                                            </button>
-                                        </div>
-                                        ${imageHtml}
-                                        <div class="recipe-macros" style="display: flex; gap: 15px; margin-bottom: 15px;">
-                                            <p><strong><i class="fas fa-fire"></i> Kalorie:</strong> ${recipe.calories} kcal</p>
-                                            <p><strong><i class="fas fa-drumstick-bite"></i> Białko:</strong> ${recipe.protein} g</p>
-                                            <p><strong><i class="fas fa-cheese"></i> Tłuszcze:</strong> ${recipe.fat} g</p>
-                                            <p><strong><i class="fas fa-bread-slice"></i> Węglowodany:</strong> ${recipe.carbs} g</p>
-                                        </div>
-                                        ${ingredientsHtml}
-                                        <h3>Sposób przygotowania:</h3>
-                                        <p>${recipe.instructions || 'Brak szczegółowego przepisu.'}</p>
-                                    `;
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <h2>${recipe.name}</h2>
+                            <button type="button" class="btn btn-primary" onclick="editRecipe(${recipe.id})">
+                                <i class="fas fa-edit"></i> Edytuj przepis
+                            </button>
+                        </div>
+                        ${imageHtml}
+                        <div class="recipe-macros" style="display: flex; gap: 15px; margin-bottom: 15px;">
+                            <p><strong><i class="fas fa-fire"></i> Kalorie:</strong> ${recipe.calories} kcal</p>
+                            <p><strong><i class="fas fa-drumstick-bite"></i> Białko:</strong> ${recipe.protein} g</p>
+                            <p><strong><i class="fas fa-cheese"></i> Tłuszcze:</strong> ${recipe.fat} g</p>
+                            <p><strong><i class="fas fa-bread-slice"></i> Węglowodany:</strong> ${recipe.carbs} g</p>
+                        </div>
+                        ${ingredientsHtml}
+                        <h3>Sposób przygotowania:</h3>
+                        <p>${recipe.instructions || 'Brak szczegółowego przepisu.'}</p>
+                    `;
 
                     document.getElementById('recipeDetailsModal').style.display = 'block';
                 } else {
-                    alert('Nie udało się wczytać szczegółów przepisu.');
+                    console.error('Błąd pobierania szczegółów przepisu:', response.status, response.statusText);
+                    alert('Nie udało się wczytać szczegółów przepisu. Kod błędu: ' + response.status);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Wystąpił błąd podczas wczytywania szczegółów przepisu.');
+                if (error.name === 'AbortError') {
+                    alert('Upłynął czas oczekiwania na odpowiedź serwera. Spróbuj ponownie.');
+                } else {
+                    alert('Wystąpił błąd podczas wczytywania szczegółów przepisu: ' + error.message);
+                }
             }
         }
 
-        // Zamknij modal po kliknięciu poza nim
-        window.onclick = function (event) {
-            const modals = document.getElementsByClassName('modal');
-            for (let i = 0; i < modals.length; i++) {
-                if (event.target == modals[i]) {
-                    modals[i].style.display = 'none';
+         // Funkcja zapisywania posiłku do jadłospisu
+        function saveMeal() {
+            try {
+                // Zbierz podstawowe dane
+                const mealDate = document.getElementById('mealDate').value;
+                const mealType = document.getElementById('mealType').value;
+                const recipeId = document.getElementById('recipeId').value;
+                const selectedIngredientId = document.getElementById('selectedIngredientId')?.value;
+                const mealId = document.getElementById('mealId').value;
+
+                // Walidacja podstawowych danych
+                if (!mealDate) {
+                    alert('Data posiłku jest wymagana');
+                    return;
                 }
+                if (!mealType) {
+                    alert('Wybierz rodzaj posiłku');
+                    return;
+                }
+
+                // Sprawdź czy wybrano przepis lub składnik
+                if (!recipeId && !selectedIngredientId) {
+                    alert('Wybierz przepis lub składnik');
+                    return;
+                }
+
+                // Przygotuj dane do wysłania
+                const mealPlanDto = {
+                    Date: mealDate,
+                    MealType: mealType,
+                    CustomEntry: "" // Zawsze dodajemy wartość, nawet pustą
+                };
+
+                // Dodaj ID posiłku jeśli edytujemy istniejący
+                if (mealId) {
+                    mealPlanDto.Id = parseInt(mealId);
+                }
+
+                // Jeśli wybrano przepis, dodaj jego ID
+                if (recipeId) {
+                    mealPlanDto.RecipeId = parseInt(recipeId);
+                    // Jeśli wybrano przepis, dodaj jego nazwę jako CustomEntry
+                    const recipeElement = document.querySelector(`.recipe-item[data-id="${recipeId}"]`);
+                    if (recipeElement) {
+                        const recipeName = recipeElement.querySelector('.recipe-title').textContent;
+                        mealPlanDto.CustomEntry = `Przepis: ${recipeName}`;
+                    } else {
+                        mealPlanDto.CustomEntry = `Przepis ID: ${recipeId}`;
+                    }
+                } 
+                // Jeśli wybrano składnik
+                else if (selectedIngredientId) {
+                    mealPlanDto.RecipeId = null;
+                    const ingredientElement = document.querySelector(`.ingredient-card[data-id="${selectedIngredientId}"]`);
+                    if (ingredientElement) {
+                        const ingredientName = ingredientElement.querySelector('.ingredient-card-header').textContent;
+                        mealPlanDto.CustomEntry = `Składnik: ${ingredientName}`;
+                    } else {
+                        mealPlanDto.CustomEntry = `Składnik ID: ${selectedIngredientId}`;
+                    }
+                }
+
+                console.log('Dane posiłku do zapisania:', mealPlanDto);
+
+                // Określ URL i metodę na podstawie tego, czy edytujemy istniejący posiłek
+                const url = mealId ? `/api/mealplan/${mealId}` : '/api/mealplan';
+                const method = mealId ? 'PUT' : 'POST';
+
+                // Pokaż ładowanie
+                const saveButton = document.getElementById('saveMealBtn');
+                const originalText = saveButton.innerHTML;
+                saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Zapisywanie...';
+                saveButton.disabled = true;
+
+                // Wyślij żądanie do API
+                fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(mealPlanDto)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error('Błąd podczas zapisywania posiłku: ' + text);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Posiłek zapisany pomyślnie:', data);
+                    closeModal('addMealModal');
+                    location.reload(); // Odśwież stronę, aby zobaczyć zmiany
+                })
+                .catch(error => {
+                    console.error('Błąd:', error);
+                    alert(error.message);
+            
+                    // Przywróć stan przycisku
+                    saveButton.innerHTML = originalText;
+                    saveButton.disabled = false;
+                });
+            } catch (error) {
+                console.error('Wystąpił błąd:', error);
+                alert('Wystąpił błąd podczas zapisywania posiłku: ' + error.message);
             }
-        };
+        }
+        // Funkcja testująca połączenie z API
+        async function testApiConnection() {
+            try {
+                const response = await fetch('/api/recipe/1', {
+                    method: 'HEAD'
+                });
+                console.log('Test połączenia API:', response.status);
+                return response.ok;
+            } catch (error) {
+                console.error('Błąd testu połączenia API:', error);
+                return false;
+            }
+        }
+
+        // Wywołaj test przy ładowaniu strony
+        document.addEventListener('DOMContentLoaded', async function() {
+            const apiStatus = await testApiConnection();
+            if (!apiStatus) {
+                console.warn('Ostrzeżenie: Połączenie z API może być niestabilne lub niedostępne.');
+            }
+        });
+
+            // Zamknij modal po kliknięciu poza nim
+            window.onclick = function (event) {
+                const modals = document.getElementsByClassName('modal');
+                for (let i = 0; i < modals.length; i++) {
+                    if (event.target == modals[i]) {
+                        modals[i].style.display = 'none';
+                    }
+                }
+            };
     </script>
 </body>
 </html>
